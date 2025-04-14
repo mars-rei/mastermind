@@ -112,8 +112,11 @@ Enter an option (1-6):
 
 def recieve_main_menu_input() -> None:
     selected_option = Main_Menu_Option.parse_main_menu_option(main_menu_options)
-    if selected_option != None:
-        print("Exiting the game...") if selected_option == Main_Menu_Option.Exit else print("Starting " + str(selected_option) + " mode...")
+    if selected_option == Main_Menu_Option.Exit:
+        print("Exiting the game...")
+        sys.exit()
+    elif selected_option != None:
+        print("Starting " + str(selected_option) + " mode...")
 
 def recieve_code_peg_input() -> None:
     selected_option = Code_Peg_Option.parse_code_peg_option(code_peg_options)
