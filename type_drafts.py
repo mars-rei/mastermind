@@ -22,13 +22,18 @@ class Code(Enum):
     Purple = 5
     Brown = 6
 
+    def describe(self):
+            # self is the member here
+            return self.name, self.value
+
     @classmethod    
     def prompt_code(cls : Type[Code], prmpt : str) -> Code:
         while True:
             try:
-                code: Code = Code(int(input(prmpt)))
-                return code
+                print(prmpt)
+                code: Code = Code(int(input(">")))
             except ValueError as ex:
-                print(ex)
+                print("That is an invalid code peg choice.")
                 
-print(Code.prompt_code(code_peg_choices))
+print(Code.prompt_code((code_peg_choices))) #checks if input given is valid
+print(Code.Empty.describe()) #prints out the enumerated tuple
