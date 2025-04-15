@@ -32,10 +32,9 @@ class Main_Menu_Option(Enum):
  
     # we'll need to be more specific (as in defining the type through if statements?)
     @classmethod    
-    def parse_main_menu_option(cls : Type[Main_Menu_Option], prmpt : str) -> Main_Menu_Option:
+    def parse_main_menu_option(cls : Type[Main_Menu_Option], input : str) -> Main_Menu_Option:
         try:
-            print(prmpt)
-            main_menu_option: Main_Menu_Option = Main_Menu_Option(int(input("> ")))
+            main_menu_option: Main_Menu_Option = Main_Menu_Option(int(input))
             return main_menu_option
         except ValueError:
             print("That is an invalid main menu choice.")    
@@ -53,10 +52,9 @@ class Code_Peg_Option(Enum):
     Brown = 6
  
     @classmethod    
-    def parse_code_peg_option(cls : Type[Code_Peg_Option], prmpt : str) -> Code_Peg_Option:
+    def parse_code_peg_option(cls : Type[Code_Peg_Option], input : str) -> Code_Peg_Option:
         try:
-            print(prmpt)
-            code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input("> ")))
+            code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
             if code_peg_option == Code_Peg_Option.Empty:
                 print("That is an invalid code peg choice.") 
             else:
@@ -105,7 +103,8 @@ Enter an option (1-6):
 """
 
 def recieve_main_menu_input() -> None:
-    selected_option = Main_Menu_Option.parse_main_menu_option(main_menu_options)
+    print(main_menu_options)
+    selected_option = Main_Menu_Option.parse_main_menu_option(input("> "))
     print()
 
     match selected_option:
@@ -121,11 +120,11 @@ def recieve_main_menu_input() -> None:
         case Main_Menu_Option.Exit:
             print("Exiting Mastermind...")
             exit()
-        case _:
-            print("Invalid input.")
 
 def recieve_code_peg_input() -> None:
-    selected_option = Code_Peg_Option.parse_code_peg_option(code_peg_options)
+    print(code_peg_options)
+    selected_option = Code_Peg_Option.parse_code_peg_option(input("> "))
+
     if selected_option != None:
         print("You have chosen an " + str(selected_option) + " peg.") if selected_option == Code_Peg_Option.Orange else print("You have chosen a " + str(selected_option) + " peg.")
 
@@ -138,7 +137,7 @@ def main_menu_navigation() -> None:
     display_mastermind_intro()
 
     while True:
-        recieve_code_peg_input()
+        recieve_main_menu_input()
 
 
 if __name__=="__main__":
