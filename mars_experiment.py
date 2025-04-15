@@ -112,11 +112,30 @@ Enter an option (1-6):
 
 def recieve_main_menu_input() -> None:
     selected_option = Main_Menu_Option.parse_main_menu_option(main_menu_options)
-    if selected_option == Main_Menu_Option.Exit:
-        print("Exiting the game...")
-        sys.exit()
-    elif selected_option != None:
-        print("Starting " + str(selected_option) + " mode...")
+    print()
+    
+    #if selected_option == Main_Menu_Option.Exit:
+        #print("Exiting the game...")
+        #exit()
+    #elif selected_option != None:
+        #print("Starting " + str(selected_option) + " mode...")
+
+    if selected_option != None:
+        match selected_option:
+            case Main_Menu_Option.Single_Player:
+                # TODO - Document/Create start_single_player Function
+                print("Starting single player mode...")
+            case Main_Menu_Option.Multiplayer:
+                # TODO - Document/Create start_multiplayer Function
+                print("Starting multiplayer mode...")
+            case Main_Menu_Option.Campaign:
+                # TODO - Document/Create start_campaign Function
+                print("Starting campaign mode...")
+            case Main_Menu_Option.Exit:
+                print("Exiting Mastermind...")
+                exit()
+            case _:
+                print("Invalid input.")
 
 def recieve_code_peg_input() -> None:
     selected_option = Code_Peg_Option.parse_code_peg_option(code_peg_options)
