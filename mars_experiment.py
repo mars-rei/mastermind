@@ -40,12 +40,6 @@ class Main_Menu_Option(Enum):
         except ValueError:
             print("That is an invalid main menu choice.")    
 
-    def __str__(self):
-        if self.value == 0:
-            return "Single Player"
-        else:
-            return self.name.lower() 
-
 
 # ----- Code Peg Option Type -----
 
@@ -113,29 +107,22 @@ Enter an option (1-6):
 def recieve_main_menu_input() -> None:
     selected_option = Main_Menu_Option.parse_main_menu_option(main_menu_options)
     print()
-    
-    #if selected_option == Main_Menu_Option.Exit:
-        #print("Exiting the game...")
-        #exit()
-    #elif selected_option != None:
-        #print("Starting " + str(selected_option) + " mode...")
 
-    if selected_option != None:
-        match selected_option:
-            case Main_Menu_Option.Single_Player:
-                # TODO - Document/Create start_single_player Function
-                print("Starting single player mode...")
-            case Main_Menu_Option.Multiplayer:
-                # TODO - Document/Create start_multiplayer Function
-                print("Starting multiplayer mode...")
-            case Main_Menu_Option.Campaign:
-                # TODO - Document/Create start_campaign Function
-                print("Starting campaign mode...")
-            case Main_Menu_Option.Exit:
-                print("Exiting Mastermind...")
-                exit()
-            case _:
-                print("Invalid input.")
+    match selected_option:
+        case Main_Menu_Option.Single_Player:
+            # TODO - Document/Create start_single_player Function
+            print("Starting single player mode...")
+        case Main_Menu_Option.Multiplayer:
+            # TODO - Document/Create start_multiplayer Function
+            print("Starting multiplayer mode...")
+        case Main_Menu_Option.Campaign:
+            # TODO - Document/Create start_campaign Function
+            print("Starting campaign mode...")
+        case Main_Menu_Option.Exit:
+            print("Exiting Mastermind...")
+            exit()
+        case _:
+            print("Invalid input.")
 
 def recieve_code_peg_input() -> None:
     selected_option = Code_Peg_Option.parse_code_peg_option(code_peg_options)
@@ -151,7 +138,7 @@ def main_menu_navigation() -> None:
     display_mastermind_intro()
 
     while True:
-        recieve_main_menu_input()
+        recieve_code_peg_input()
 
 
 if __name__=="__main__":
