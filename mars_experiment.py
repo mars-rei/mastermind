@@ -1,6 +1,3 @@
-# separate file for mars testing (all in one file)
-
-
 # ------ Imports ------
 from __future__ import annotations
 import sys, random
@@ -37,7 +34,27 @@ class Main_Menu_Option(Enum):
             main_menu_option: Main_Menu_Option = Main_Menu_Option(int(input))
             return main_menu_option
         except ValueError:
-            print("That is an invalid main menu choice.")    
+            print("That is an invalid main menu choice.")
+
+Menu: TypeAlias = Main_Menu_Option
+
+
+# in case we do use enums for confirming 
+# ----- Confirmation Option Type -----
+
+class Confirmation_Option(Enum):
+    Yes = 'y'
+    No = 'n'
+ 
+    @classmethod    
+    def parse_confirmation_option(cls : Type[Confirmation_Option], input : str) -> Confirmation_Option:
+        try:
+            confirmation_option: Confirmation_Option = Confirmation_Option(input).lower()
+            return confirmation_option
+        except ValueError:
+            print("That is an invalid confirmation choice.")
+
+Confirm: TypeAlias = Confirmation_Option
 
 
 # ----- Code Peg Option Type -----
@@ -63,7 +80,63 @@ class Code_Peg_Option(Enum):
             print("That is an invalid code peg choice.") 
 
     def __str__(self):
-        return self.name.lower()              
+        return self.name.lower()  
+
+Code: TypeAlias = Code_Peg_Option 
+
+
+# ----- Hint Peg Type -----
+
+class Hint_Peg(Enum):
+    Empty = 0
+    White = 1
+    Red = 2
+ 
+    @classmethod    
+
+    def __str__(self):
+        return self.name.lower()  
+
+Hint: TypeAlias = Hint_Peg
+
+
+# ----- Player Types -----
+
+@dataclass(eq=True, frozen=True)
+class CodeMaker:
+    pass
+
+@dataclass(eq=True, frozen=True)
+class CodeBreaker:
+    pass
+
+@dataclass(eq=True,frozen=True)
+class CPU:
+    pass
+
+Player : TypeAlias = CodeMaker | CodeBreaker | CPU
+
+
+# ----- Secret Code Type -----
+Secret: TypeAlias = tuple[Code, Code, Code, Code]
+
+
+# ----- Guess Type -----
+Guess: TypeAlias = tuple[Code, Code, Code, Code]
+
+
+# ----- Feedback Type -----
+Feedback: TypeAlias = tuple[Hint, Hint, Hint, Hint]
+
+
+# ----- Row Type -----
+Row: TypeAlias = tuple[Guess, Feedback]
+
+
+# ----- Board Type -----
+Normal_Board: TypeAlias = tuple[Row, Row, Row, Row] 
+Hard_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
+Board: TypeAlias = Normal_Board | Hard_Board
 
 
 # ----- Interface Visuals -----
