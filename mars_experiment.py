@@ -194,19 +194,17 @@ def recieve_main_menu_input() -> None:
             print("Exiting Mastermind...")
             exit()
 
+
 def recieve_code_peg_input() -> None:
     print(code_peg_options)
     selected_option = Code_Peg_Option.parse_code_peg_option(input("> "))
 
     if selected_option != None:
         print("You have chosen an " + str(selected_option) + " peg.") if selected_option == Code_Peg_Option.Orange else print("You have chosen a " + str(selected_option) + " peg.")
-
-# Prints Game Title & Main Menu
-def display_mastermind_intro() -> None:
-    print(mastermind_intro)
+  
 
 if __name__=="__main__":
-    display_mastermind_intro()
+    print(mastermind_intro)
 
     while True:
         recieve_main_menu_input()
