@@ -205,13 +205,8 @@ def recieve_code_peg_input() -> None:
 def display_mastermind_intro() -> None:
     print(mastermind_intro)
 
-# Combines Interface display and Running Prompt
-def main_menu_navigation() -> None:
+if __name__=="__main__":
     display_mastermind_intro()
 
     while True:
         recieve_main_menu_input()
-
-
-if __name__=="__main__":
-    main_menu_navigation()
