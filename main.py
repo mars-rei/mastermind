@@ -27,9 +27,21 @@ class Main_Menu_Option(Enum):
     Campaign = 2
     Exit = 3
  
-    # we'll need to be more specific (as in defining the type through if statements?)
     @classmethod    
     def parse_main_menu_option(cls : Type[Main_Menu_Option], input : str) -> Main_Menu_Option:
+
+        '''
+        Main_Menu_Option.parse_main_menu_option is a function
+            which parses an input string to a Main_Menu_Option value
+
+        Parameters:
+            input (str) : An input string to try to parse into a Main_Menu_Option
+
+        Returns:
+            Type[Main_Menu_Option] the function parses the input to a valid
+                Main_Menu_Option or prints an error value
+        '''
+                
         try:
             main_menu_option: Main_Menu_Option = Main_Menu_Option(int(input))
             return main_menu_option
@@ -39,7 +51,6 @@ class Main_Menu_Option(Enum):
 Menu: TypeAlias = Main_Menu_Option
 
 
-# in case we do use enums for confirming 
 # ----- Confirmation Option Type -----
 
 class Confirmation_Option(Enum):
@@ -48,6 +59,19 @@ class Confirmation_Option(Enum):
  
     @classmethod    
     def parse_confirmation_option(cls : Type[Confirmation_Option], input : str) -> Confirmation_Option:
+
+        '''
+        Confirmation_Option.parse_confirmation_option is a function
+            which parses an input string to a Confirmation_Option value
+
+        Parameters:
+            input (str) : An input string to try to parse into aConfirmation_Option
+
+        Returns:
+            Type[Confirmation_Option] the function parses the input to a valid
+                Cnfirmation_Option or prints an error value
+        '''
+                
         try:
             confirmation_option: Confirmation_Option = Confirmation_Option(input).lower()
             return confirmation_option
@@ -70,6 +94,19 @@ class Code_Peg_Option(Enum):
  
     @classmethod    
     def parse_code_peg_option(cls : Type[Code_Peg_Option], input : str) -> Code_Peg_Option:
+
+        '''
+        Code_Peg_Options.parse_code_peg_option is a function
+            which parses an input string to a Code_Peg_Option value
+
+        Parameters:
+            input (str) : An input string to try to parse into a Code_Peg_Option
+
+        Returns:
+            Type[Code_Peg_Option] the function parses the input to a valid
+                Code_Peg_Option or prints an error value
+        '''
+                
         try:
             code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
             if code_peg_option == Code_Peg_Option.Empty:
@@ -123,20 +160,26 @@ Secret: TypeAlias = tuple[Code, Code, Code, Code]
 
 # ----- Guess Type -----
 Guess: TypeAlias = tuple[Code, Code, Code, Code]
+emptyGuess : Guess = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 
 # ----- Feedback Type -----
 Feedback: TypeAlias = tuple[Hint, Hint, Hint, Hint]
+emptyFeedback : Feedback = tuple[Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty]
 
 
 # ----- Row Type -----
 Row: TypeAlias = tuple[Guess, Feedback]
+emptyRow: Row = tuple[emptyGuess, emptyFeedback]
 
 
 # ----- Board Type -----
-Normal_Board: TypeAlias = tuple[Row, Row, Row, Row] 
-Hard_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
+Normal_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
+Hard_Board: TypeAlias = tuple[Row, Row, Row, Row] 
 Board: TypeAlias = Normal_Board | Hard_Board
+
+empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
+empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
 
 
 # ----- Interface Visuals -----
