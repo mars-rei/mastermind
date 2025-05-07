@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys, random
 from dataclasses import dataclass
 from enum import Enum
-from typing import Type, Any, Callable, TypeAlias, Optional, NoReturn
+from typing import Type, Any, Callable, TypeAlias, Optional, NoReturn, Union
 
 
 # ------ Information -------
@@ -19,7 +19,7 @@ Authors:
 """
 
 
-# ----- Main Menu Option Type -----
+# ---------- Main Menu Option Type ----------
 
 class Main_Menu_Option(Enum):
     Single_Player = 0
@@ -51,7 +51,7 @@ class Main_Menu_Option(Enum):
 Menu: TypeAlias = Main_Menu_Option
 
 
-# ----- Confirmation Option Type -----
+# ---------- Confirmation Option Type ----------
 
 class Confirmation_Option(Enum):
     Yes = 'y'
@@ -81,7 +81,7 @@ class Confirmation_Option(Enum):
 Confirm: TypeAlias = Confirmation_Option
 
 
-# ----- Code Peg Option Type -----
+# ---------- Code Peg Option Type ----------
 
 class Code_Peg_Option(Enum):
     Empty = 0
@@ -122,7 +122,7 @@ class Code_Peg_Option(Enum):
 Code: TypeAlias = Code_Peg_Option 
 
 
-# ----- Hint Peg Type -----
+# ---------- Hint Peg Type ----------
 
 class Hint_Peg(Enum):
     Empty = 0
@@ -137,7 +137,7 @@ class Hint_Peg(Enum):
 Hint: TypeAlias = Hint_Peg
 
 
-# ----- Player Types -----
+# ---------- Player Types ----------
 
 @dataclass(eq=True, frozen=True)
 class CodeMaker:
@@ -154,26 +154,27 @@ class CPU:
 Player : TypeAlias = CodeMaker | CodeBreaker | CPU
 
 
-# ----- Secret Code Type -----
+# ---------- Secret Code Type ----------
 Secret: TypeAlias = tuple[Code, Code, Code, Code]
+emptySecret : Secret = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 
-# ----- Guess Type -----
+# ---------- Guess Type ----------
 Guess: TypeAlias = tuple[Code, Code, Code, Code]
 emptyGuess : Guess = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 
-# ----- Feedback Type -----
+# ---------- Feedback Type ----------
 Feedback: TypeAlias = tuple[Hint, Hint, Hint, Hint]
 emptyFeedback : Feedback = tuple[Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty]
 
 
-# ----- Row Type -----
+# ---------- Row Type ----------
 Row: TypeAlias = tuple[Guess, Feedback]
 emptyRow: Row = tuple[emptyGuess, emptyFeedback]
 
 
-# ----- Board Type -----
+# ---------- Board Type ----------
 Normal_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
 Hard_Board: TypeAlias = tuple[Row, Row, Row, Row] 
 Board: TypeAlias = Normal_Board | Hard_Board
@@ -182,7 +183,7 @@ empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow,
 empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
 
 
-# ----- Interface Visuals -----
+# ---------- Interface Visuals ----------
 
 mastermind_intro : str = """
  ___________________________________
@@ -191,8 +192,7 @@ mastermind_intro : str = """
 """
 
 
-# ----- Program Flow and Functions -----
-
+# ---------- Option Interface Visuals ----------
 
 main_menu_options : str = """
 MAIN MENU ---------------------------
@@ -218,7 +218,16 @@ CODE PEG SELECTION ---------------------------
 Enter an option (1-6): 
 """
 
+# ---------- Option Interface Visuals ----------
+
 def recieve_main_menu_input() -> None:
+
+    '''
+        recieve_main_menu_input is a function
+            which recieves the user's parsed Main_Menu_Option and 
+            based on this, calls the appropriate main menu option function
+    '''
+    
     print(main_menu_options)
     selected_option = Main_Menu_Option.parse_main_menu_option(input("> "))
     print()
@@ -239,15 +248,107 @@ def recieve_main_menu_input() -> None:
 
 
 def recieve_code_peg_input() -> None:
+
+    '''
+        recieve_code_peg_input is a function
+            which recieves the user's parsed Code_Peg_Option and 
+            based on this, print out the appropriate message to 
+            the command-line
+    '''
+
     print(code_peg_options)
     selected_option = Code_Peg_Option.parse_code_peg_option(input("> "))
+    print()
 
-    if selected_option != None:
-        print("You have chosen an " + str(selected_option) + " peg.") if selected_option == Code_Peg_Option.Orange else print("You have chosen a " + str(selected_option) + " peg.")
+    match selected_option:
+        case Code_Peg_Option.Orange:
+            print("You have chosen an orange peg.")
+        case Code_Peg_Option.Green:
+            print("You have chosen a green peg.")
+        case Code_Peg_Option.Blue:
+            print("You have chosen a blue peg.")
+        case Code_Peg_Option.Yellow:
+            print("You have chosen a yellow peg.")
+        case Code_Peg_Option.Purple:
+            print("You have chosen a purple peg.")
+        case Code_Peg_Option.Brown:
+            print("You have chosen a brown peg.")
+
+
+def recieve_confirmation_input() -> None: # TO DO
+
+    '''
+        recieve_confirmation_input is a function
+            which recieves the user's parsed Confirm_Option and 
+            based on this, ...?
+    '''
+
+    print("Are you sure you want to continue?") # will probably change later on
+    selected_option = Confirmation_Option.parse_confirmation_option(input("> "))
+    print()
+
+    match selected_option:
+        case Confirmation_Option.Yes:
+            print("????")
+        case Confirmation_Option.No:
+            print("????")
   
 
+def normal_secret_code() -> Secret: # need to make pegs unique
+    valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
+    # newSecretCode: Secret = random.choices(valid_code_pegs, k=4)
+    newSecretCode: Secret = emptySecret
+
+    for count in range(4):
+        potentialPeg : Code = random.choice(valid_code_pegs)
+        newSecretCode[count] = potentialPeg
+        valid_code_pegs.remove(potentialPeg)
+    
+    return newSecretCode
+
+def make_secret_code() -> Secret:
+    pass
+
+def hard_secret_code() -> Secret: # need to make pegs unique
+    valid_code_pegs: list = [peg for peg in Code_Peg_Option if peg != Code_Peg_Option.Empty]
+    newSecretCode: Secret = emptySecret
+    random_pegs: list = random.choices(valid_code_pegs, k=3)
+    duplicate_peg: Code = random_pegs[2]
+    random_pegs.append(duplicate_peg)
+    newSecretCode = [peg for peg in random_pegs] # idk if this works yet, will have to test
+    random.shuffle(newSecretCode)
+    return newSecretCode
+
+def start_single_player() -> None:
+    pass
+
+def start_multiplayer() -> None:
+    pass
+
+def start_campaign() -> None:
+    pass
+
+def get_guess() -> Guess:
+    pass
+
+def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
+    pass
+
+def display_board(gameBoard: Board):
+    pass
+
+def update_board(gameBoard: Board, turnCount: int, update: Union[Guess, Feedback]) -> Board:
+    pass
+
+def announce_winner(gameFinished: bool, players: list) -> None:
+    pass
+
+
+
+# ---------- Program Start Flow ----------
 if __name__=="__main__":
     print(mastermind_intro)
 
-    while True:
-        recieve_main_menu_input()
+    #while True:
+        #recieve_main_menu_input()
+    print(normal_secret_code())
