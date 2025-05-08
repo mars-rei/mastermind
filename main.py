@@ -296,13 +296,7 @@ def recieve_confirmation_input() -> None: # TO DO
 
 def normal_secret_code() -> Secret: # need to make pegs unique
     valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
-    # newSecretCode: Secret = random.choices(valid_code_pegs, k=4)
-    newSecretCode: Secret = emptySecret
-
-    for count in range(4):
-        potentialPeg : Code = random.choice(valid_code_pegs)
-        newSecretCode[count] = potentialPeg
-        valid_code_pegs.remove(potentialPeg)
+    newSecretCode: Secret = random.sample(valid_code_pegs, k=4)
     
     return newSecretCode
 
