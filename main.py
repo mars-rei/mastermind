@@ -351,9 +351,6 @@ def start_single_player() -> None:
 
     announce_winner(game_finished, players)
 
-
-
-
 def start_multiplayer() -> None:
     pass
 
@@ -383,7 +380,10 @@ def update_board(game_board: Board, turn_count: int, update: Union[Guess, Feedba
     pass
 
 def announce_winner(game_finished: bool, players: list) -> None:
-    pass
+    if game_finished:
+        print(players[0], "has won the game!")
+    else:
+        print(players[1], "has won the game!")
 
 
 
