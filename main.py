@@ -296,6 +296,7 @@ def recieve_confirmation_input() -> None: # TO DO
 
 def normal_secret_code() -> Secret: # need to make pegs unique
     valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
+    valid_code_pegs.remove(Code_Peg_Option.Empty)
     newSecretCode: Secret = random.sample(valid_code_pegs, k=4)
     
     return newSecretCode
@@ -345,4 +346,6 @@ if __name__=="__main__":
 
     #while True:
         #recieve_main_menu_input()
-    print(normal_secret_code())
+    secret : Secret = normal_secret_code()
+    print(secret)
+    print(secret[0], secret[1], secret[2], secret[3])
