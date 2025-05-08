@@ -295,8 +295,7 @@ def recieve_confirmation_input() -> None: # TO DO
   
 
 def normal_secret_code() -> Secret: 
-    valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
-    valid_code_pegs.remove(Code_Peg_Option.Empty)
+    valid_code_pegs: list = [peg for peg in Code if peg != Code(0)]
     newSecretCode: Secret = random.sample(valid_code_pegs, k=4)
     return newSecretCode
 
@@ -304,7 +303,7 @@ def make_secret_code() -> Secret:
     pass
 
 def hard_secret_code() -> Secret: 
-    valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
+    valid_code_pegs: list = [peg for peg in Code if peg != Code(0)]
     newSecretCode: list = random.sample(valid_code_pegs, k=3)
     newSecretCode.append(newSecretCode[2])
     random.shuffle(newSecretCode)
