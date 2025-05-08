@@ -80,11 +80,12 @@ class Confirmation_Option(Enum):
 
 Confirm: TypeAlias = Confirmation_Option
 
+# The optional type itself could be used here 
+
 
 # ---------- Code Peg Option Type ----------
 
 class Code_Peg_Option(Enum):
-    Empty = 0
     Orange = 1
     Green = 2
     Blue = 3
