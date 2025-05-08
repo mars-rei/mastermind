@@ -323,7 +323,36 @@ def hard_secret_code() -> Secret:
     return newSecretCode
 
 def start_single_player() -> None:
-    pass
+    game_board: Normal_Board = empty_normal_board
+    players = [CodeBreaker, CPU]
+    game_finished : bool = False
+
+    secret_code : Secret = normal_secret_code()
+
+    max_turns : int = 6
+    turn_count : int = 0
+
+    while turn_count < max_turns:
+        display_board(game_board)
+        new_guess : Guess = get_guess()
+
+        game_board : Normal_Board = update_board(game_board, turn_count, new_guess)
+
+        state_and_feedback : list = get_feedback(new_guess, secret)
+        game_finished : bool = state_and_feedback[0]
+        new_feedback : Feedback = state_and_feedback[1]
+
+        game_board : Normal_Board = update_board(game_board, turn_count, new_feedback)
+
+        turn_count += 1
+
+        if game_finished:
+            break
+
+    announce_winner(game_finished, players)
+
+
+
 
 def start_multiplayer() -> None:
     pass
@@ -341,19 +370,19 @@ def get_guess() -> Guess:
     guess : Guess
 
     # add confirmation
-    
+
     return guess
 
 def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     pass
 
-def display_board(gameBoard: Board):
+def display_board(game_board: Board):
     pass
 
-def update_board(gameBoard: Board, turnCount: int, update: Union[Guess, Feedback]) -> Board:
+def update_board(game_board: Board, turn_count: int, update: Union[Guess, Feedback]) -> Board:
     pass
 
-def announce_winner(gameFinished: bool, players: list) -> None:
+def announce_winner(game_finished: bool, players: list) -> None:
     pass
 
 
