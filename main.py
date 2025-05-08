@@ -141,15 +141,18 @@ Hint: TypeAlias = Hint_Peg
 
 @dataclass(eq=True, frozen=True)
 class CodeMaker:
-    pass
+    def __str__(self) -> str:
+        return "Code Maker"
 
 @dataclass(eq=True, frozen=True)
 class CodeBreaker:
-    pass
+    def __str__(self) -> str:
+        return "Code Breaker"
 
 @dataclass(eq=True,frozen=True)
 class CPU:
-    pass
+    def __str__(self) -> str:
+        return "CPU"
 
 Player : TypeAlias = CodeMaker | CodeBreaker | CPU
 
