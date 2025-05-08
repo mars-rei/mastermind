@@ -247,7 +247,7 @@ def recieve_main_menu_input() -> None:
             exit()
 
 
-def recieve_code_peg_input() -> None:
+def recieve_code_peg_input() -> Code: 
 
     '''
         recieve_code_peg_input is a function
@@ -263,19 +263,31 @@ def recieve_code_peg_input() -> None:
     match selected_option:
         case Code_Peg_Option.Orange:
             print("You have chosen an orange peg.")
+            selected_option : Code = selected_option
+            return selected_option
         case Code_Peg_Option.Green:
             print("You have chosen a green peg.")
+            selected_option : Code = selected_option
+            return selected_option
         case Code_Peg_Option.Blue:
             print("You have chosen a blue peg.")
+            selected_option : Code = selected_option
+            return selected_option
         case Code_Peg_Option.Yellow:
             print("You have chosen a yellow peg.")
+            selected_option : Code = selected_option
+            return selected_option
         case Code_Peg_Option.Purple:
             print("You have chosen a purple peg.")
+            selected_option : Code = selected_option
+            return selected_option
         case Code_Peg_Option.Brown:
             print("You have chosen a brown peg.")
+            selected_option : Code = selected_option
+            return selected_option
 
 
-def recieve_confirmation_input() -> None: # TO DO
+def recieve_confirmation_input() -> Confirmation_Option: # TO DO
 
     '''
         recieve_confirmation_input is a function
@@ -320,7 +332,17 @@ def start_campaign() -> None:
     pass
 
 def get_guess() -> Guess:
-    pass
+    guess : list = []
+    while len(guess) != 4:
+        potentialPeg = recieve_code_peg_input()
+        if potentialPeg != None:
+            guess.append(potentialPeg)
+        
+    guess : Guess
+
+    # add confirmation
+    
+    return guess
 
 def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     pass
@@ -343,5 +365,10 @@ if __name__=="__main__":
     #while True:
         #recieve_main_menu_input()
     secret : Secret = normal_secret_code()
-    print(secret)
-    print(secret[0], secret[1], secret[2], secret[3])
+    print('normal secret code:', secret[0], secret[1], secret[2], secret[3])
+
+    secret : Secret = hard_secret_code()
+    print('hard secret code:', secret[0], secret[1], secret[2], secret[3])
+
+    guess: Guess = get_guess()
+    print('guess:', guess[0], guess[1], guess[2], guess[3])
