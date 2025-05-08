@@ -294,24 +294,21 @@ def recieve_confirmation_input() -> None: # TO DO
             print("????")
   
 
-def normal_secret_code() -> Secret: # need to make pegs unique
+def normal_secret_code() -> Secret: 
     valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
     valid_code_pegs.remove(Code_Peg_Option.Empty)
     newSecretCode: Secret = random.sample(valid_code_pegs, k=4)
-    
     return newSecretCode
 
 def make_secret_code() -> Secret:
     pass
 
-def hard_secret_code() -> Secret: # need to make pegs unique
-    valid_code_pegs: list = [peg for peg in Code_Peg_Option if peg != Code_Peg_Option.Empty]
-    newSecretCode: Secret = emptySecret
-    random_pegs: list = random.choices(valid_code_pegs, k=3)
-    duplicate_peg: Code = random_pegs[2]
-    random_pegs.append(duplicate_peg)
-    newSecretCode = [peg for peg in random_pegs] # idk if this works yet, will have to test
+def hard_secret_code() -> Secret: 
+    valid_code_pegs: list = [peg for peg in Code if peg != Code(1)]
+    newSecretCode: list = random.sample(valid_code_pegs, k=3)
+    newSecretCode.append(newSecretCode[2])
     random.shuffle(newSecretCode)
+    newSecretCode : Secret
     return newSecretCode
 
 def start_single_player() -> None:
