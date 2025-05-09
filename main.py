@@ -314,14 +314,19 @@ def recieve_confirmation_input() -> Confirmation_Option: # TO DO
 
 def normal_secret_code() -> Secret: 
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
-    newSecretCode: list[Code] = random.sample(valid_code_pegs, k=4)
-    return tuple(newSecretCode) # matches Secret definition of a tuple containing 4 Code
+    newSecretCode: Secret = tuple(random.sample(valid_code_pegs, k=4))
+    return newSecretCode
 
 def make_secret_code() -> Secret:
     pass
 
 def hard_secret_code() -> Secret: 
-    pass
+    valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
+    no_duplicate_sample: list[Code] = random.sample(valid_code_pegs, k=3)
+    duplicate_code: list[Code] = no_duplicate_sample + no_duplicate_sample[2]
+    newSecretCode: Secret = tuple(random.sample(duplicate_code, k=4))
+    return newSecretCode 
+
 
 # TODO: angelo :3
 def start_gameplay() -> None:
@@ -332,6 +337,19 @@ def start_campaign() -> None: # dunno if still needed
 
 def get_guess() -> Guess:
     pass
+
+"""def get_guess() -> Guess:
+    guess : list = []
+    while len(guess) != 4:
+        potentialPeg = recieve_code_peg_input()
+        if potentialPeg != None:
+            guess.append(potentialPeg)
+        
+    guess : Guess
+
+    # add confirmation
+
+    return guess""" # imperative version
 
 def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     pass
