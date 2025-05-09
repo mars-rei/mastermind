@@ -313,7 +313,9 @@ def recieve_confirmation_input() -> Confirmation_Option: # TO DO
   
 
 def normal_secret_code() -> Secret: 
-    pass
+    valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
+    newSecretCode: list[Code] = random.sample(valid_code_pegs, k=4)
+    return tuple(newSecretCode) # matches Secret definition of a tuple containing 4 Code
 
 def make_secret_code() -> Secret:
     pass
