@@ -80,11 +80,12 @@ class Confirmation_Option(Enum):
 
 Confirm: TypeAlias = Confirmation_Option
 
+# The optional type itself could be used here 
+
 
 # ---------- Code Peg Option Type ----------
 
 class Code_Peg_Option(Enum):
-    Empty = 0
     Orange = 1
     Green = 2
     Blue = 3
@@ -92,8 +93,8 @@ class Code_Peg_Option(Enum):
     Purple = 5
     Brown = 6
  
-    @staticmethod   
-    def parse_code_peg_option(input : str) -> Optional['Code_Peg_Option']:
+    @classmethod    
+    def parse_code_peg_option(cls : Type[Code_Peg_Option], input : str) -> Code_Peg_Option:
 
         '''
         Code_Peg_Options.parse_code_peg_option is a function
@@ -106,20 +107,15 @@ class Code_Peg_Option(Enum):
             Type[Code_Peg_Option] the function parses the input to a valid
                 Code_Peg_Option or prints an error value
         '''
-
-        match input:
-            case 1:
-                return Code_Peg_Option.Orange
-            case 2:
-                return Code_Peg_Option.Green
-            case 3:
-                return Code_Peg_Option.Blue
-            case 4:
-                return Code_Peg_Option.Yellow
-            case 5:
-                return Code_Peg_Option.Brown
-            case _:
-                return None
+                
+        try:
+            code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
+            if code_peg_option == Code_Peg_Option.Empty:
+                print("That is an invalid code peg choice.") 
+            else:
+                return code_peg_option
+        except ValueError:
+            print("That is an invalid code peg choice.") 
 
     def __str__(self):
         return self.name.lower()  
@@ -268,11 +264,31 @@ def recieve_code_peg_input() -> Code:
     selected_option = Code_Peg_Option.parse_code_peg_option(input("> "))
     print()
 
-    #match selected_option:
-        #case ??????:
-            #return selected_option
-        #case _:
-            #print("ERROR: Not a valid code peg option")
+    match selected_option:
+        case Code_Peg_Option.Orange:
+            print("You have chosen an orange peg.")
+            selected_option : Code = selected_option
+            return selected_option
+        case Code_Peg_Option.Green:
+            print("You have chosen a green peg.")
+            selected_option : Code = selected_option
+            return selected_option
+        case Code_Peg_Option.Blue:
+            print("You have chosen a blue peg.")
+            selected_option : Code = selected_option
+            return selected_option
+        case Code_Peg_Option.Yellow:
+            print("You have chosen a yellow peg.")
+            selected_option : Code = selected_option
+            return selected_option
+        case Code_Peg_Option.Purple:
+            print("You have chosen a purple peg.")
+            selected_option : Code = selected_option
+            return selected_option
+        case Code_Peg_Option.Brown:
+            print("You have chosen a brown peg.")
+            selected_option : Code = selected_option
+            return selected_option
 
 
 def recieve_confirmation_input() -> Confirmation_Option: # TO DO

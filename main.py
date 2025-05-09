@@ -41,7 +41,8 @@ class Main_Menu_Option(Enum):
             Type[Main_Menu_Option] the function parses the input to a valid
                 Main_Menu_Option or prints an error value
         '''
-                
+
+# -------------------------- use match cases here instead? ---------------------------------------              
         try:
             main_menu_option: Main_Menu_Option = Main_Menu_Option(int(input))
             return main_menu_option
@@ -53,7 +54,7 @@ Menu: TypeAlias = Main_Menu_Option
 
 # ---------- Confirmation Option Type ----------
 
-class Confirmation_Option(Enum):
+class Confirmation_Option(Enum): # maybe just use discriminated unions instead and have different options for yes and no?
     Yes = 'y'
     No = 'n'
  
@@ -71,7 +72,8 @@ class Confirmation_Option(Enum):
             Type[Confirmation_Option] the function parses the input to a valid
                 Cnfirmation_Option or prints an error value
         '''
-                
+
+# -------------------------- use match cases here instead? ---------------------------------------                    
         try:
             confirmation_option: Confirmation_Option = Confirmation_Option(input).lower()
             return confirmation_option
@@ -80,12 +82,11 @@ class Confirmation_Option(Enum):
 
 Confirm: TypeAlias = Confirmation_Option
 
-# The optional type itself could be used here 
-
 
 # ---------- Code Peg Option Type ----------
 
 class Code_Peg_Option(Enum):
+    # optional type instead of empty
     Orange = 1
     Green = 2
     Blue = 3
@@ -107,7 +108,8 @@ class Code_Peg_Option(Enum):
             Type[Code_Peg_Option] the function parses the input to a valid
                 Code_Peg_Option or prints an error value
         '''
-                
+
+# -------------------------- use match cases here instead? ---------------------------------------                         
         try:
             code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
             if code_peg_option == Code_Peg_Option.Empty:
@@ -126,7 +128,7 @@ Code: TypeAlias = Code_Peg_Option
 # ---------- Hint Peg Type ----------
 
 class Hint_Peg(Enum):
-    Empty = 0
+    Empty = 0 # use optional type instead?
     White = 1
     Red = 2
  
@@ -311,68 +313,23 @@ def recieve_confirmation_input() -> Confirmation_Option: # TO DO
   
 
 def normal_secret_code() -> Secret: 
-    valid_code_pegs: list = [peg for peg in Code if peg != Code(0)]
-    newSecretCode: Secret = random.sample(valid_code_pegs, k=4)
-    return newSecretCode
+    pass
 
 def make_secret_code() -> Secret:
     pass
 
 def hard_secret_code() -> Secret: 
-    valid_code_pegs: list = [peg for peg in Code if peg != Code(0)]
-    newSecretCode: list = random.sample(valid_code_pegs, k=3)
-    newSecretCode.append(newSecretCode[2])
-    random.shuffle(newSecretCode)
-    newSecretCode : Secret
-    return newSecretCode
-
-def start_single_player() -> None:
-    game_board: Normal_Board = empty_normal_board
-    players = [CodeBreaker, CPU]
-    game_finished : bool = False
-
-    secret_code : Secret = normal_secret_code()
-
-    max_turns : int = 6
-    turn_count : int = 0
-
-    while turn_count < max_turns:
-        display_board(game_board)
-        new_guess : Guess = get_guess()
-
-        game_board : Normal_Board = update_board(game_board, turn_count, new_guess)
-
-        state_and_feedback : list = get_feedback(new_guess, secret)
-        game_finished : bool = state_and_feedback[0]
-        new_feedback : Feedback = state_and_feedback[1]
-
-        game_board : Normal_Board = update_board(game_board, turn_count, new_feedback)
-
-        turn_count += 1
-
-        if game_finished:
-            break
-
-    announce_winner(game_finished, players)
-
-def start_multiplayer() -> None:
     pass
 
-def start_campaign() -> None:
+# TODO: angelo :3
+def start_gameplay() -> None:
+    pass
+
+def start_campaign() -> None: # dunno if still needed
     pass
 
 def get_guess() -> Guess:
-    guess : list = []
-    while len(guess) != 4:
-        potentialPeg = recieve_code_peg_input()
-        if potentialPeg != None:
-            guess.append(potentialPeg)
-        
-    guess : Guess
-
-    # add confirmation
-
-    return guess
+    pass
 
 def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     pass
@@ -383,11 +340,14 @@ def display_board(game_board: Board):
 def update_board(game_board: Board, turn_count: int, update: Union[Guess, Feedback]) -> Board:
     pass
 
+
+# i think this is okay ~ mars
 def announce_winner(game_finished: bool, players: list) -> None:
-    if game_finished:
-        print(players[0], "has won the game!")
-    else:
-        print(players[1], "has won the game!")
+    match game_finished:
+        case True:
+            print(players[0], "has won the game!")
+        case False:
+            print(players[1], "has won the game!")
 
 
 
