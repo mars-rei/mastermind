@@ -335,8 +335,12 @@ def start_gameplay() -> None:
 def start_campaign() -> None: # dunno if still needed
     pass
 
-def get_guess() -> Guess:
-    pass
+def get_guess(guess_MAX: int = 1) -> Guess:
+    print(f"INPUTTING CODE PEG NO.#{guess_MAX}")
+    if guess_MAX == 4:
+        return (recieve_code_peg_input(),)
+    else:
+        return (recieve_code_peg_input(),) + get_guess(guess_MAX+1)
 
 """def get_guess() -> Guess:
     guess : list = []
