@@ -112,7 +112,7 @@ class Code_Peg_Option(Enum):
 # -------------------------- use match cases here instead? ---------------------------------------                         
         try:
             code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
-            if code_peg_option == Code_Peg_Option:
+            if code_peg_option == Code_Peg_Option.Empty:
                 print("That is an invalid code peg choice.") 
             else:
                 return code_peg_option
@@ -122,7 +122,7 @@ class Code_Peg_Option(Enum):
     def __str__(self):
         return self.name.lower()  
 
-Code: TypeAlias = Code_Peg_Option
+Code: TypeAlias = Code_Peg_Option 
 
 
 # ---------- Hint Peg Type ----------
@@ -162,12 +162,12 @@ Player : TypeAlias = CodeMaker | CodeBreaker | CPU
 
 # ---------- Secret Code Type ----------
 Secret: TypeAlias = tuple[Code, Code, Code, Code]
-#emptySecret : Secret = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
+emptySecret : Secret = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 
 # ---------- Guess Type ----------
 Guess: TypeAlias = tuple[Code, Code, Code, Code]
-#emptyGuess : Guess = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
+emptyGuess : Guess = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 
 # ---------- Feedback Type ----------
@@ -177,7 +177,7 @@ emptyFeedback : Feedback = tuple[Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty]
 
 # ---------- Row Type ----------
 Row: TypeAlias = tuple[Guess, Feedback]
-#emptyRow: Row = tuple[emptyGuess, emptyFeedback]
+emptyRow: Row = tuple[emptyGuess, emptyFeedback]
 
 
 # ---------- Board Type ----------
@@ -185,8 +185,8 @@ Normal_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
 Hard_Board: TypeAlias = tuple[Row, Row, Row, Row] 
 Board: TypeAlias = Normal_Board | Hard_Board
 
-#empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
-#empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
+empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
+empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
 
 
 # ---------- Interface Visuals ----------
@@ -335,13 +335,8 @@ def start_gameplay() -> None:
 def start_campaign() -> None: # dunno if still needed
     pass
 
-def get_guess(guess_MAX: int = 1) -> Guess:
-    #pass
-    print(f"INPUTTING CODE PEG NO.#{guess_MAX}")
-    if guess_MAX == 4:
-        return [recieve_code_peg_input()]
-    else:
-        return [recieve_code_peg_input()] + get_guess(guess_MAX+1)
+def get_guess() -> Guess:
+    pass
 
 """def get_guess() -> Guess:
     guess : list = []
@@ -380,13 +375,8 @@ def announce_winner(game_finished: bool, players: list) -> None:
 if __name__=="__main__":
     print(mastermind_intro)
 
-    guess = get_guess()
-    print(type(guess))
-    print(guess)
-
     #while True:
         #recieve_main_menu_input()
-    """
     secret : Secret = normal_secret_code()
     print('normal secret code:', secret[0], secret[1], secret[2], secret[3])
 
@@ -395,4 +385,3 @@ if __name__=="__main__":
 
     guess: Guess = get_guess()
     print('guess:', guess[0], guess[1], guess[2], guess[3])
-    """
