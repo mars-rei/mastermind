@@ -340,8 +340,41 @@ def get_guess(guess_size: int = 1) -> Guess:
         return (receive_code_peg_input(),) + get_guess(guess_size+1)
 
 
-def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
-    pass
+# not sure ----------------------------------------------------------------------------------------------------------------------
+def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]: # could use a map function for this
+    if guess == secret:
+        return [True, tuple(Hint.Red, Hint.Red, Hint.Red, Hint.Red)]
+    else:
+        red : Feedback = get_red_hints(guess, secret)
+        white : Feedback = get_white_hints(guess, secret)
+        return [False, feedback] # write a new function to generate tuple?
+    
+def get_red_hints(guess: Guess, secret: Secret) -> Feedback:
+    red_pegs: Feedback = (Hint.Red if guess[i] == secret[i] else Hint.Empty for i in range(len(secret))) # this can't print
+    return red_pegs
+
+def get_white_hints(guess: Guess, secret: Secret) -> Feedback:
+    white_pegs: Feedback = (Hint.White if guess[i] in secret else Hint.Empty for i in range(len(secret))) # this can't print
+    return white_pegs
+# --------------------------------------------------------------------------------------------------------------------------------  
+
+
+# imperative version
+"""def get_feedback(guess : Guess, secret: Secret) -> list[bool, Feedback]:
+    if guess == secret:
+        feedback : Feedback = (Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red)
+        return [True, feedback]
+    else:
+        feedback = []
+        for i in range(len(guess)):
+            if guess[i] == secret[i]:
+                feedback.append(Hint.Red)
+            elif guess[i] in secret:
+                feedback.append(Hint.White)
+            else:
+                feedback.append(Hint.Empty)
+        return [False, tuple(feedback)]"""
+            
 
 
 def display_board(game_board: Board):
@@ -365,6 +398,12 @@ def announce_winner(game_finished: bool, players: list) -> None: # okay
 if __name__=="__main__":
     print(mastermind_intro)
 
-    guess: Guess = get_guess()
+    secret_code : Secret = normal_secret_code()
+    print(secret_code)
 
+    guess: Guess = get_guess()
     print(guess)
+
+    feedback: Feedback = get_feedback(guess, secret_code)
+    print(feedback)
+    
