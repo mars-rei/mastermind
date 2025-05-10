@@ -87,6 +87,7 @@ Confirm: TypeAlias = Confirmation_Option
 
 class Code_Peg_Option(Enum):
     # optional type instead of empty
+    Empty = 0
     Orange = 1
     Green = 2
     Blue = 3
@@ -226,11 +227,11 @@ Enter an option (1-6):
 
 # ---------- Option Interface Visuals ----------
 
-def recieve_main_menu_input() -> None:
+def receive_main_menu_input() -> None:
 
     '''
-        recieve_main_menu_input is a function
-            which recieves the user's parsed Main_Menu_Option and 
+        receive_main_menu_input is a function
+            which receives the user's parsed Main_Menu_Option and 
             based on this, calls the appropriate main menu option function
     '''
     
@@ -253,51 +254,44 @@ def recieve_main_menu_input() -> None:
             exit()
 
 
-def recieve_code_peg_input() -> Code: 
+def receive_code_peg_input() -> Code: 
 
     '''
-        recieve_code_peg_input is a function
-            which recieves the user's parsed Code_Peg_Option and 
+        receive_code_peg_input is a function
+            which receives the user's parsed Code_Peg_Option and 
             based on this, print out the appropriate message to 
             the command-line
     '''
 
-    print(code_peg_options)
-    selected_option = Code_Peg_Option.parse_code_peg_option(input("> "))
-    print()
+    while True:
+        print(code_peg_options)
+        selected_option = Code_Peg_Option.parse_code_peg_option(input("> "))
 
-    match selected_option:
-        case Code_Peg_Option.Orange:
-            print("You have chosen an orange peg.")
-            selected_option : Code = selected_option
+        if selected_option:
+            match selected_option:
+                case Code_Peg_Option.Orange:
+                    print("You have chosen an orange peg.")
+                case Code_Peg_Option.Green:
+                    print("You have chosen a green peg.")
+                case Code_Peg_Option.Blue:
+                    print("You have chosen a blue peg.")
+                case Code_Peg_Option.Yellow:
+                    print("You have chosen a yellow peg.")
+                case Code_Peg_Option.Purple:
+                    print("You have chosen a purple peg.")
+                case Code_Peg_Option.Brown:
+                    print("You have chosen a brown peg.")
             return selected_option
-        case Code_Peg_Option.Green:
-            print("You have chosen a green peg.")
-            selected_option : Code = selected_option
-            return selected_option
-        case Code_Peg_Option.Blue:
-            print("You have chosen a blue peg.")
-            selected_option : Code = selected_option
-            return selected_option
-        case Code_Peg_Option.Yellow:
-            print("You have chosen a yellow peg.")
-            selected_option : Code = selected_option
-            return selected_option
-        case Code_Peg_Option.Purple:
-            print("You have chosen a purple peg.")
-            selected_option : Code = selected_option
-            return selected_option
-        case Code_Peg_Option.Brown:
-            print("You have chosen a brown peg.")
-            selected_option : Code = selected_option
-            return selected_option
+        else:
+            print("Invalid peg choice.")
 
 
-def recieve_confirmation_input() -> Confirmation_Option: # TO DO
+
+def receive_confirmation_input() -> Confirmation_Option: # TO DO
 
     '''
-        recieve_confirmation_input is a function
-            which recieves the user's parsed Confirm_Option and 
+        receive_confirmation_input is a function
+            which receives the user's parsed Confirm_Option and 
             based on this, ...?
     '''
 
@@ -312,7 +306,7 @@ def recieve_confirmation_input() -> Confirmation_Option: # TO DO
             print("????")
   
 
-def normal_secret_code() -> Secret: 
+def normal_secret_code() -> Secret: # okay
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
     newSecretCode: Secret = tuple(random.sample(valid_code_pegs, k=4))
     return newSecretCode
@@ -320,7 +314,7 @@ def normal_secret_code() -> Secret:
 def make_secret_code() -> Secret:
     pass
 
-def hard_secret_code() -> Secret: 
+def hard_secret_code() -> Secret: # okay
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
     no_duplicate_sample: list[Code] = random.sample(valid_code_pegs, k=3)
     duplicate_code: list[Code] = no_duplicate_sample + no_duplicate_sample[2]
@@ -332,41 +326,33 @@ def hard_secret_code() -> Secret:
 def start_gameplay() -> None:
     pass
 
+
 def start_campaign() -> None: # dunno if still needed
     pass
 
-def get_guess(guess_MAX: int = 1) -> Guess:
-    print(f"INPUTTING CODE PEG NO.#{guess_MAX}")
-    if guess_MAX == 4:
-        return (recieve_code_peg_input(),)
+
+def get_guess(guess_size: int = 1) -> Guess:
+    print() # just for formatting - need to figure out
+    print(f"Choice for Code Peg No.#{guess_size}")
+    if guess_size == 4:
+        return (receive_code_peg_input(),)
     else:
-        return (recieve_code_peg_input(),) + get_guess(guess_MAX+1)
+        return (receive_code_peg_input(),) + get_guess(guess_size+1)
 
-"""def get_guess() -> Guess:
-    guess : list = []
-    while len(guess) != 4:
-        potentialPeg = recieve_code_peg_input()
-        if potentialPeg != None:
-            guess.append(potentialPeg)
-        
-    guess : Guess
-
-    # add confirmation
-
-    return guess""" # imperative version
 
 def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     pass
 
+
 def display_board(game_board: Board):
     pass
+
 
 def update_board(game_board: Board, turn_count: int, update: Union[Guess, Feedback]) -> Board:
     pass
 
 
-# i think this is okay ~ mars
-def announce_winner(game_finished: bool, players: list) -> None:
+def announce_winner(game_finished: bool, players: list) -> None: # okay
     match game_finished:
         case True:
             print(players[0], "has won the game!")
@@ -379,13 +365,6 @@ def announce_winner(game_finished: bool, players: list) -> None:
 if __name__=="__main__":
     print(mastermind_intro)
 
-    #while True:
-        #recieve_main_menu_input()
-    secret : Secret = normal_secret_code()
-    print('normal secret code:', secret[0], secret[1], secret[2], secret[3])
-
-    secret : Secret = hard_secret_code()
-    print('hard secret code:', secret[0], secret[1], secret[2], secret[3])
-
     guess: Guess = get_guess()
-    print('guess:', guess[0], guess[1], guess[2], guess[3])
+
+    print(guess)
