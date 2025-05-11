@@ -22,10 +22,10 @@ Authors:
 # ---------- Main Menu Option Type ----------
 
 class Main_Menu_Option(Enum):
-    Single_Player = 0
-    Multiplayer = 1
-    Campaign = 2
-    Exit = 3
+    Single_Player = 1
+    Multiplayer = 2
+    Campaign = 3
+    Exit = 4
  
     @classmethod    
     def parse_main_menu_option(cls : Type[Main_Menu_Option], input : str) -> Main_Menu_Option:
@@ -204,12 +204,12 @@ mastermind_intro : str = """
 main_menu_options : str = """
 MAIN MENU ---------------------------
 
-(0) Single Player
-(1) Multiplayer
-(2) Campaign
-(3) Exit
+(1) Single Player
+(2) Multiplayer
+(3) Campaign
+(4) Exit
 
-Enter an option (0-3): 
+Enter an option (1-4): 
 """
 
 code_peg_options : str = """
