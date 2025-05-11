@@ -254,6 +254,24 @@ def receive_main_menu_input() -> None:
             exit()
 
 
+# marsy's suggestion to new program flow
+"""def receive_main_menu_input() -> Main_Menu_Option:
+    print(main_menu_options)
+    selected_option = Main_Menu_Option.parse_main_menu_option(input("> "))
+    print()
+
+    match selected_option:
+        case Main_Menu_Option.Single_Player:
+            return Main_Menu_Option.Single_Player
+        case Main_Menu_Option.Multiplayer:
+            return Main_Menu_Option.Multiplayer
+        case Main_Menu_Option.Campaign:
+            return Main_Menu_Option.Campaign
+        case Main_Menu_Option.Exit:
+            print("Exiting Mastermind...")
+            exit()"""
+
+
 def receive_code_peg_input() -> Code: 
 
     '''
