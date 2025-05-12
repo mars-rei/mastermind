@@ -340,9 +340,31 @@ def hard_secret_code() -> Secret: # okay
     return newSecretCode 
 
 
+# IN-PROGRESS function
+def play_round(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> tuple[Board, tuple[Player, Player], Union[Secret, tuple[Secret, Secret, Secret]]]:    
+    display_board(game_board)
+    new_guess: Guess = get_guess()
+    first_board_update: Board = update_board(game_board, new_guess)
+    new_feedback: Feedback = get_feedback(new_guess, secret_code)
+    second_board_update: Board = update_board(first_board_update, new_feedback)
+    return (second_board_update, players, secret_code)
+
+
+
+# IN-PROGRESS function
+def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> tuple[bool, tuple[Player, Player]]:
+    if turn_count == 6 and game_finished == False:
+        return play_round(game_board, players, secret_code)
+        game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
+
+
 # TODO: angelo :3
-def start_gameplay() -> None:
-    pass
+def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
+    if game_mode == "Single_Player" or "Multiplayer":
+        game_session: tuple[bool, tuple] = play_game(game_board, players, normal_secret_code())
+        #play_game(game_mode, game_board, players, secret_code)
+        announce_winner(game_session[0], game_session[1])
+
 
 
 def start_campaign() -> None: # dunno if still needed
@@ -365,7 +387,7 @@ def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]: # could 
     else:
         red : Feedback = get_red_hints(guess, secret)
         white : Feedback = get_white_hints(guess, secret)
-        return [False, feedback] # write a new function to generate tuple?
+        return [False, Feedback] # write a new function to generate tuple?
     
 def get_red_hints(guess: Guess, secret: Secret) -> Feedback:
     red_pegs: Feedback = (Hint.Red if guess[i] == secret[i] else Hint.Empty for i in range(len(secret))) # this can't print
@@ -399,7 +421,7 @@ def display_board(game_board: Board):
     pass
 
 
-def update_board(game_board: Board, turn_count: int, update: Union[Guess, Feedback]) -> Board:
+def update_board(game_board: Board, update: Union[Guess, Feedback]) -> Board:
     pass
 
 
@@ -415,7 +437,7 @@ def announce_winner(game_finished: bool, players: list) -> None: # okay
 # ---------- Program Start Flow ----------
 if __name__=="__main__":
     print(mastermind_intro)
-
+    """
     secret_code : Secret = normal_secret_code()
     print(secret_code)
 
@@ -424,4 +446,6 @@ if __name__=="__main__":
 
     feedback: Feedback = get_feedback(guess, secret_code)
     print(feedback)
+    """
+
     
