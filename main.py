@@ -133,8 +133,6 @@ class Hint_Peg(Enum):
     White = 1
     Red = 2
  
-    @classmethod    
-
     def __str__(self):
         return self.name.lower()  
 
@@ -341,39 +339,33 @@ def hard_secret_code() -> Secret: # okay
 
 
 # IN-PROGRESS function
-def play_round(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> tuple[Board, tuple[Player, Player], Union[Secret, tuple[Secret, Secret, Secret]]]:    
+def play_round(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> tuple[Board, bool]:    
     display_board(game_board)
     new_guess: Guess = get_guess()
     first_board_update: Board = update_board(game_board, new_guess)
     new_feedback: Feedback = get_feedback(new_guess, secret_code)
     second_board_update: Board = update_board(first_board_update, new_feedback)
-    return (second_board_update, players, secret_code)
+    return (second_board_update, new_feedback[0])
 
 
 
 # IN-PROGRESS function
-""" 
-(12/05/2025) ----- Angelo's Script -----
-I feel as if play_game() is the one performing the recursion
-Cuz play_round() is like the receive_code_peg_input() in this context
-And at the moment, it's gonna be the case of the returning a full tuple containing the Board, Players, Secret Code, Turn Count, and Game Finished Value
-which returns back in the start_gameplay() function when the turn count is 6 and game finished status is false
-doing that though we can just select the index in regards to Players and Game Finished and then pass it into announce_winner()
-let's try that!! >:D
-your gonna have to tell me if the RED highlights are appearing on your IDE cuz mine don't show as the joining collaborator
- """
 def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> tuple[bool, tuple[Player, Player]]:
     if turn_count == 6 and game_finished == False:
-        return play_round(game_board, players, secret_code)
-        game_session: tuple[bool, Player] = play_round(game_board, players, secret_code) # note to gelo: this is invalid placement because it's after a return
+        round: tuple[Board, tuple[Player, Player]] = play_round(game_board, players, secret_code)
+        return play_game(round[0], players, secret_code, turn_count+1, round[1])
+        #game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
+    else:
+        return [game]
 
 
 # TODO: angelo :3
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
     if game_mode == "Single_Player" or "Multiplayer":
-        game_session: tuple[Board, tuple[Player, Player], Secret, int] = play_game(game_board, players, normal_secret_code())
+        game_session: tuple[bool, tuple] = play_game(game_board, players, normal_secret_code())
         #play_game(game_mode, game_board, players, secret_code)
         announce_winner(game_session[0], game_session[1])
+
 
 
 
@@ -423,8 +415,29 @@ def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     if guess == secret:
         return [True, tuple([Hint.Red] * 4)]
     else:
-        pass
+        feedback = []
+        """for i in range(len(guess)):
+            if guess[i] == secret[i]:
+                feedback.append(Hint.Red)
+            elif guess[i] in secret: # need to check for number of occurrences in guess and in secret
+                feedback.append(Hint.White)
+            else:
+                feedback.append(Hint.Empty)"""
+        
 
+        # still figuring out white pegs ---------------------------------------------------------------
+        occurrences_guess = []
+        occurrences_secret = []
+        for i in range(len(guess)):
+            occurrences_guess.append([str(guess[i]), guess.count(guess[i])])
+            occurrences_secret.append([str(secret[i]), guess.count(secret[i])])
+
+        print(occurrences_guess)
+        print(occurrences_secret)
+        
+            
+        return [False, tuple(feedback)]
+                
 
 # --------------------------------------------------------------------------------------------------------------------------------  
 
@@ -467,13 +480,16 @@ def announce_winner(game_finished: bool, players: list) -> None: # okay
 # ---------- Program Start Flow ----------
 if __name__=="__main__":
     print(mastermind_intro)
+    print()
+    
     secret_code : Secret = normal_secret_code()
-    print(secret_code)
-
+    
     guess: Guess = get_guess()
-    print(guess)
+    print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
     feedback: Feedback = get_feedback(guess, secret_code)
+    print('is game finished?:', feedback[0])
+    print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
 
     
