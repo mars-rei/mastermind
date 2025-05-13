@@ -350,9 +350,9 @@ def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secre
 
 
 # IN-PROGRESS function
-def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> tuple[bool, tuple[Player, Player]]:
+def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> bool:
     if turn_count == 7 or game_finished == True:
-        return (game_finished, players)
+        return game_finished
         #game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
     else:
         print(f"\nATTEMPT NO.#{turn_count} ----------")
@@ -388,62 +388,24 @@ def get_guess(guess_size: int = 1) -> Guess:
         return (receive_code_peg_input(),) + get_guess(guess_size+1)
 
 
-# not sure ----------------------------------------------------------------------------------------------------------------------
+# marsy is working on get_feedback -------------------------------------------------------------------------------------------------------------------------
+
+# functional and declarative version
 """
-def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]: # could use a map function for this
+def get_feedback(guess: Guess, secret: Secret, code_difficulty: str) -> tuple[bool, Feedback]:
     if guess == secret:
         return [True, tuple([Hint.Red] * 4)]
     else:
-        red : list = get_red_hints(guess, secret)
+        red : Feedback = tuple(get_red_hints(guess, secret))
         print('red hint pegs:', red)
-        white: list = get_white_hints(guess, secret, tuple(red))
-        print('white hint pegs:', white)
-        # white : Feedback = get_white_hints(guess, secret)
-        # feedback : Feedback = None
-        # return [False, feedback] # write a new function to generate tuple?
+        return [False, None]
     
-def get_red_hints(guess: Guess, secret: Secret) -> list[bool]:
-    return list(map(lambda x, y: x == y, guess, secret))
-
-def get_white_hints(guess: Guess, secret: Secret, red: tuple) -> list[bool]:
-    # this is difficult :')
-    # return list(map(lambda peg: peg in secret, guess)) returns incorrectly
-    pass
+def get_red_hints(guess: Guess, secret: Secret) -> list:
+    return [(Hint.Red, guess[i]) if guess[i] == secret[i] else (Hint.Empty, guess[i]) for i in range(len(guess))]
 """
-
-# if i were to write an imperative version of get_feedback
-"""def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
-    if guess == secret:
-        return [True, tuple([Hint.Red] * 4)]
-    else:
-        feedback = []
-        for i in range(len(guess)):
-            if guess[i] == secret[i]:
-                feedback.append(Hint.Red)
-            elif guess[i] in secret: # need to check for number of occurrences in guess and in secret
-                feedback.append(Hint.White)
-            else:
-                feedback.append(Hint.Empty)
-        
-
-        # still figuring out white pegs ---------------------------------------------------------------
-        occurrences_guess = []
-        occurrences_secret = []
-        for i in range(len(guess)):
-            occurrences_guess.append([str(guess[i]), guess.count(guess[i])])
-            occurrences_secret.append([str(secret[i]), guess.count(secret[i])])
-
-        print(occurrences_guess)
-        print(occurrences_secret)
-        
-            
-        return [False, tuple(feedback)]"""
-                
-
-# --------------------------------------------------------------------------------------------------------------------------------  
-
 
 # imperative version (code_difficulty for brain aid)
+
 def get_feedback(guess : Guess, secret: Secret, code_difficulty: str) -> list[bool, Feedback]:
     if guess == secret:
         feedback : Feedback = (Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red)
@@ -506,6 +468,8 @@ def get_feedback(guess : Guess, secret: Secret, code_difficulty: str) -> list[bo
         feedback_sorted = sorted(feedback, key=lambda x: feedback_order[x])
 
         return [False, tuple(feedback_sorted)]
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------
             
 
 
@@ -531,7 +495,7 @@ if __name__=="__main__":
     print(mastermind_intro)
 
     # Mimi's TEST CODE (for get_feedback)
-    
+    """
     print()
     print()
     print()
@@ -541,7 +505,7 @@ if __name__=="__main__":
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the normal secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
-    feedback: Feedback = get_feedback(guess, secret_code, "normal")
+    feedback: tuple = get_feedback(guess, secret_code, "normal")
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
 
@@ -554,18 +518,18 @@ if __name__=="__main__":
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the hard secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
-    feedback: Feedback = get_feedback(guess, secret_code, "hard")
+    feedback: tuple = get_feedback(guess, secret_code, "hard")
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
 
     print()
     print()
     print()
-    
+    """
 
     # Gelo's TEST CODE (for start_gameplay)
-    """while True:
-        receive_main_menu_input()"""
+    while True:
+        receive_main_menu_input()
 
 
     
