@@ -412,18 +412,18 @@ def get_white_hints(guess: Guess, secret: Secret, red: tuple) -> list[bool]:
 """
 
 # if i were to write an imperative version of get_feedback
-def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
+"""def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
     if guess == secret:
         return [True, tuple([Hint.Red] * 4)]
     else:
         feedback = []
-        """for i in range(len(guess)):
+        for i in range(len(guess)):
             if guess[i] == secret[i]:
                 feedback.append(Hint.Red)
             elif guess[i] in secret: # need to check for number of occurrences in guess and in secret
                 feedback.append(Hint.White)
             else:
-                feedback.append(Hint.Empty)"""
+                feedback.append(Hint.Empty)
         
 
         # still figuring out white pegs ---------------------------------------------------------------
@@ -437,14 +437,14 @@ def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
         print(occurrences_secret)
         
             
-        return [False, tuple(feedback)]
+        return [False, tuple(feedback)]"""
                 
 
 # --------------------------------------------------------------------------------------------------------------------------------  
 
 
 # imperative version
-"""def get_feedback(guess : Guess, secret: Secret) -> list[bool, Feedback]:
+def get_feedback(guess : Guess, secret: Secret) -> list[bool, Feedback]:
     if guess == secret:
         feedback : Feedback = (Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red)
         return [True, feedback]
@@ -452,12 +452,15 @@ def get_feedback(guess: Guess, secret: Secret) -> list[bool, Feedback]:
         feedback = []
         for i in range(len(guess)):
             if guess[i] == secret[i]:
-                feedback.append(Hint.Red)
-            elif guess[i] in secret:
-                feedback.append(Hint.White)
+                feedback.append([Hint.Red, guess[i]])
+            elif guess[i] in secret: # this only works for normal_secret_code
+                if [Hint.White, guess[i]] in feedback or [Hint.Red, guess[i]]:
+                    feedback.append([Hint.Empty, guess[i]])
+                else:
+                    feedback.append([Hint.White, guess[i]])
             else:
-                feedback.append(Hint.Empty)
-        return [False, tuple(feedback)]"""
+                feedback.append([Hint.Empty, guess[i]])
+        return [False, tuple(feedback)]
             
 
 
@@ -484,7 +487,7 @@ if __name__=="__main__":
     print()
 
     # Mimi's TEST CODE (for get_feedback)
-    """
+    
     secret_code : Secret = normal_secret_code()
     
     guess: Guess = get_guess()
@@ -494,11 +497,11 @@ if __name__=="__main__":
     feedback: Feedback = get_feedback(guess, secret_code)
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
-    """
+    
 
     # Gelo's TEST CODE (for start_gameplay)
-    while True:
-        receive_main_menu_input()
+    """while True:
+        receive_main_menu_input()"""
 
 
     
