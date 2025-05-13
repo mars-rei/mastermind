@@ -333,7 +333,7 @@ def make_secret_code() -> Secret:
 def hard_secret_code() -> Secret: # okay
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
     no_duplicate_sample: list[Code] = random.sample(valid_code_pegs, k=3)
-    duplicate_code: list[Code] = no_duplicate_sample + no_duplicate_sample[2]
+    duplicate_code: list[Code] = no_duplicate_sample + [no_duplicate_sample[2]]
     newSecretCode: Secret = tuple(random.sample(duplicate_code, k=4))
     return newSecretCode 
 
@@ -449,18 +449,29 @@ def get_feedback(guess : Guess, secret: Secret) -> list[bool, Feedback]:
         feedback : Feedback = (Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red)
         return [True, feedback]
     else:
-        feedback = []
+        red_feedback = []
         for i in range(len(guess)):
             if guess[i] == secret[i]:
-                feedback.append([Hint.Red, guess[i]])
-            elif guess[i] in secret: # this only works for normal_secret_code
+                red_feedback.append([str(Hint.Red), str(guess[i])])
+            else:
+                red_feedback.append([str(Hint.Empty), str(guess[i])])
+
+        white_feedback = []
+        for i in range(len(guess)):
+            pass
+
+        """for i in range(len(guess)):
+            if guess[i] == secret[i]:
+                red_feedback.append([Hint.Red, guess[i]])
+            if guess[i] in secret: 
+                # this only works for normal_secret_code
                 if [Hint.White, guess[i]] in feedback or [Hint.Red, guess[i]]:
                     feedback.append([Hint.Empty, guess[i]])
                 else:
                     feedback.append([Hint.White, guess[i]])
             else:
-                feedback.append([Hint.Empty, guess[i]])
-        return [False, tuple(feedback)]
+                feedback.append([Hint.Empty, guess[i]])"""
+        return [False, tuple(red_feedback)]
             
 
 
@@ -488,7 +499,7 @@ if __name__=="__main__":
 
     # Mimi's TEST CODE (for get_feedback)
     
-    secret_code : Secret = normal_secret_code()
+    secret_code : Secret = hard_secret_code()
     
     guess: Guess = get_guess()
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
@@ -496,7 +507,7 @@ if __name__=="__main__":
     print('the secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
     feedback: Feedback = get_feedback(guess, secret_code)
     print('is game finished?:', feedback[0])
-    print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
+    print('feedback:', feedback[1])
     
 
     # Gelo's TEST CODE (for start_gameplay)
