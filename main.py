@@ -240,7 +240,7 @@ def receive_main_menu_input() -> None:
     match selected_option:
         case Main_Menu_Option.Single_Player:
             # TODO - Document/Create start_single_player Function
-            print("Starting single player mode...")
+            start_gameplay(selected_option, empty_normal_board, (CodeBreaker, CPU), normal_secret_code())
         case Main_Menu_Option.Multiplayer:
             # TODO - Document/Create start_multiplayer Function
             print("Starting multiplayer mode...")
@@ -351,18 +351,19 @@ def play_round(game_board: Board, players: tuple[Player, Player], secret_code: U
 
 # IN-PROGRESS function
 def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> tuple[bool, tuple[Player, Player]]:
-    if turn_count == 6 and game_finished == False:
-        round: tuple[Board, tuple[Player, Player]] = play_round(game_board, players, secret_code)
-        return play_game(round[0], players, secret_code, turn_count+1, round[1])
+    print(f"\nATTEMPT NO.#{turn_count} ----------")
+    if turn_count == 7 or game_finished == True:
+        return (game_finished, players)
         #game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
     else:
-        return [game]
+        round: tuple[Board, bool] = play_round(game_board, players, secret_code)
+        return play_game(round[0], players, secret_code, turn_count+1, round[1])
 
 
 # TODO: angelo :3
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
     if game_mode == "Single_Player" or "Multiplayer":
-        game_session: tuple[bool, tuple] = play_game(game_board, players, normal_secret_code())
+        game_session: tuple[bool, tuple] = play_game(game_board, players, secret_code)
         #play_game(game_mode, game_board, players, secret_code)
         announce_winner(game_session[0], game_session[1])
 
@@ -481,7 +482,9 @@ def announce_winner(game_finished: bool, players: list) -> None: # okay
 if __name__=="__main__":
     print(mastermind_intro)
     print()
-    
+
+    # Mimi's TEST CODE (for get_feedback)
+    """
     secret_code : Secret = normal_secret_code()
     
     guess: Guess = get_guess()
@@ -491,5 +494,11 @@ if __name__=="__main__":
     feedback: Feedback = get_feedback(guess, secret_code)
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
+    """
+
+    # Gelo's TEST CODE (for start_gameplay)
+    while True:
+        receive_main_menu_input()
+
 
     
