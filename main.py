@@ -42,7 +42,6 @@ class Main_Menu_Option(Enum):
                 Main_Menu_Option or prints an error value
         '''
 
-# -------------------------- use match cases here instead? ---------------------------------------              
         try:
             main_menu_option: Main_Menu_Option = Main_Menu_Option(int(input))
             return main_menu_option
@@ -73,7 +72,6 @@ class Confirmation_Option(Enum): # maybe just use discriminated unions instead a
                 Cnfirmation_Option or prints an error value
         '''
 
-# -------------------------- use match cases here instead? ---------------------------------------                    
         try:
             confirmation_option: Confirmation_Option = Confirmation_Option(input).lower()
             return confirmation_option
@@ -110,7 +108,6 @@ class Code_Peg_Option(Enum):
                 Code_Peg_Option or prints an error value
         '''
 
-# -------------------------- use match cases here instead? ---------------------------------------                         
         try:
             code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
             if code_peg_option == Code_Peg_Option.Empty:
@@ -225,7 +222,7 @@ Enter an option (1-6):
 
 # ---------- Option Interface Visuals ----------
 
-def receive_main_menu_input() -> None:
+def receive_main_menu_input() -> None: # TODO
 
     '''
         receive_main_menu_input is a function
@@ -356,7 +353,6 @@ def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secre
 def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> bool:
     if turn_count == 7 or game_finished == True:
         return game_finished
-        # game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
     else:
         print(f"\nATTEMPT NO.#{turn_count} ----------")
         round: tuple[Board, bool] = play_round(game_board, players, secret_code)
@@ -367,16 +363,11 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Un
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
     if game_mode == "Single_Player" or game_mode == "Multiplayer":
         game_session: tuple[bool, tuple] = play_game(game_board, players, secret_code)
-        # play_game(game_mode, game_board, players, secret_code)
         announce_winner(game_session[0], players)
-    else: # if game_mode == "Campaign"
+    if game_mode == "Campaign":
         pass
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-def start_campaign() -> None: # dunno if still needed
-    pass
 
 
 def get_guess(guess_size: int = 1) -> Guess:
@@ -387,10 +378,6 @@ def get_guess(guess_size: int = 1) -> Guess:
     else:
         return (receive_code_peg_input(),) + get_guess(guess_size+1)
 
-
-# marsy is working on get_feedback -------------------------------------------------------------------------------------------------------------------------
-
-# functional and declarative version
 
 def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
     if guess == secret:
@@ -404,9 +391,11 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
         final_feedback : Feedback = sort_hints(feedback) 
         return [False, final_feedback]
 
+
 # merges red and white pegs, with empty pegs filling in the spaces
 def join_hints(red_pegs : list, white_pegs : Feedback) -> list[Hint]:
     return list(map(lambda i: Hint.Red if red_pegs[i][0] else Hint.White if white_pegs[i][0] else Hint.Empty, range(4)))
+
 
 def sort_hints(feedback: list[Hint]) -> Feedback: 
     feedback_order = {Hint.Red: 0, Hint.White: 1, Hint.Empty: 2}
@@ -418,7 +407,6 @@ def get_red_hints(guess: Guess, secret: Secret) -> list:
 
 
 def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback:
-
     # checks if peg is a duplicated peg in the secret code
     def check_if_dupe(peg : Code, secret : Secret) -> bool: 
         return secret.count(peg) == 2
@@ -474,9 +462,9 @@ def display_board(game_board: Board): # TODO
 
 
 # TODO: gelo's doing this
-def update_board(game_board: Board, newGuess: Guess, newFeedback: Feedback) -> Board:
-    newRow: Row = (Guess, Feedback)
-    return game_board + newRow
+def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback) -> Board:
+    new_row: Row = (Guess, Feedback)
+    return game_board + new_row
 
 
 def announce_winner(game_finished: bool, players: tuple) -> None: 
@@ -489,46 +477,15 @@ def announce_winner(game_finished: bool, players: tuple) -> None:
 
 # ---------- Program Start Flow ----------
 if __name__=="__main__":
-    print(mastermind_intro)
-
-    # Mimi's TEST CODE (for get_feedback)
-
-    secret_code : Secret = normal_secret_code()
-    guess: Guess = get_guess()
-
-    print()
-    print()
-    print()
-
-    print('the guess is:', guess[0], guess[1], guess[2], guess[3])
-
-    print('the normal secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
-    feedback: tuple = get_feedback(guess, secret_code)
-    print('is game finished?:', feedback[0])
-    print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
-
-
-    secret_code : Secret = hard_secret_code()
-    guess: Guess = get_guess()
-
-    print()
-    print()
-    print()
-
-    print('the guess is:', guess[0], guess[1], guess[2], guess[3])
-
-    print('the hard secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
-    feedback: tuple = get_feedback(guess, secret_code)
-    print('is game finished?:', feedback[0])
-    print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
-
-    print()
-    print()
-    print()
-
-
-    # Gelo's TEST CODE (for start_gameplay)
+    print(mastermind_intro) 
     """
     while True:
         receive_main_menu_input()
     """
+    # Gelo's TEST CODE (for update_board)
+    sample_secret_code: Secret = normal_secret_code()
+    sample_board: Board = empty_normal_board
+    sample_guess: Guess = get_guess()
+    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
+    updated_board: Board = update_board(sample_board, sample_guess, sample_feedback)
+    print(updated_board)
