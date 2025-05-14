@@ -322,21 +322,25 @@ def receive_confirmation_input() -> Confirmation_Option: # TO DO
             print("????")
   
 
-def normal_secret_code() -> Secret: # okay
+def normal_secret_code() -> Secret: 
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
     newSecretCode: Secret = tuple(random.sample(valid_code_pegs, k=4))
     return newSecretCode
 
-def make_secret_code() -> Secret:
+
+def make_secret_code() -> Secret: # TODO
     pass
 
-def hard_secret_code() -> Secret: # okay
+
+def hard_secret_code() -> Secret: 
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
     no_duplicate_sample: list[Code] = random.sample(valid_code_pegs, k=3)
     duplicate_code: list[Code] = no_duplicate_sample + [no_duplicate_sample[2]]
     newSecretCode: Secret = tuple(random.sample(duplicate_code, k=4))
     return newSecretCode 
 
+
+# gelo is working on start_gameplay ------------------------------------------------------------------------------------------------------------------------
 
 # IN-PROGRESS function
 def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> tuple[Board, bool]:    
@@ -348,12 +352,11 @@ def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secre
     return (second_board_update, new_feedback[0])
 
 
-
 # IN-PROGRESS function
 def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> bool:
     if turn_count == 7 or game_finished == True:
         return game_finished
-        #game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
+        # game_session: tuple[bool, Player] = play_round(game_board, players, secret_code)
     else:
         print(f"\nATTEMPT NO.#{turn_count} ----------")
         round: tuple[Board, bool] = play_round(game_board, players, secret_code)
@@ -362,17 +365,14 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Un
 
 # TODO: angelo :3
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
-    if game_mode == "Single_Player" or "Multiplayer":
+    if game_mode == "Single_Player" or game_mode == "Multiplayer":
         game_session: tuple[bool, tuple] = play_game(game_board, players, secret_code)
-        #play_game(game_mode, game_board, players, secret_code)
+        # play_game(game_mode, game_board, players, secret_code)
         announce_winner(game_session[0], players)
+    else: # if game_mode == "Campaign"
+        pass
 
-
-
-
-
-
-
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 def start_campaign() -> None: # dunno if still needed
@@ -391,21 +391,110 @@ def get_guess(guess_size: int = 1) -> Guess:
 # marsy is working on get_feedback -------------------------------------------------------------------------------------------------------------------------
 
 # functional and declarative version
-"""
+
 def get_feedback(guess: Guess, secret: Secret, code_difficulty: str) -> tuple[bool, Feedback]:
     if guess == secret:
         return [True, tuple([Hint.Red] * 4)]
     else:
-        red : Feedback = tuple(get_red_hints(guess, secret))
+        red : list = get_red_hints(guess, secret)
         print('red hint pegs:', red)
-        return [False, None]
+        white : Feedback = get_white_hints(guess, secret, red)
+        print('white hint pegs:', white)
+        final_feedback : Feedback = join_hints(red, white)
+        return [False, final_feedback]
     
 def get_red_hints(guess: Guess, secret: Secret) -> list:
-    return [(Hint.Red, guess[i]) if guess[i] == secret[i] else (Hint.Empty, guess[i]) for i in range(len(guess))]
-"""
+    return [(True, guess[i]) if guess[i] == secret[i] else (False, guess[i]) for i in range(len(guess))]
+
+def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback: # TODO
+
+    # checks if peg is a duplicated peg in the secret code
+    def check_if_dupe(peg : Code, secret : Secret) -> bool: 
+        return secret.count(peg) == 2
+    
+
+    # checks how many times peg has been matched (red)
+    def check_guessed_correctly(peg : Code, red_pegs : list) -> int: 
+        return red_pegs.count([True, peg])
+    
+
+    # checks how many times peg has almost been matched (white)
+    def check_almost_guessed(peg : Code, running_feedback : list) -> int: 
+        return running_feedback.count([True, peg])
+    
+
+    # is a single peg in the secret
+    def occurs_once(peg : Code, red_pegs : list, running_feedback : list) -> bool:
+        return (check_guessed_correctly(peg, red_pegs) != 1 and check_almost_guessed(peg, running_feedback) != 1)
+
+
+    # is a duplicate peg in the secret
+    def occurs_twice(peg : Code, red_pegs : list, running_feedback : list) -> bool: # TODO
+        pass
+
+
+    # here for reference
+    """if secret_occurrences == 2: # if it is the duplicated peg
+        if red_feedback.count([str(Hint.Red), str(guess[i])]) == 2: # if duplicated pegs have both been matched
+            white_feedback.append([str(Hint.Empty), str(guess[i])])
+        elif white_feedback.count([str(Hint.White), str(guess[i])]) == 2: # if duplicated pegs have both been guessed in wrong place
+            white_feedback.append([str(Hint.Empty), str(guess[i])])
+
+        elif red_feedback.count([str(Hint.Red), str(guess[i])]) == 1 and white_feedback.count([str(Hint.White), str(guess[i])]) == 1:
+            white_feedback.append([str(Hint.Empty), str(guess[i])]) # both pegs have been guessed
+        else:
+            white_feedback.append([str(Hint.White), str(guess[i])]) # only make white if both pegs haven't been guessed
+        
+    elif secret_occurrences == 1: # isn't a duplicated peg (i think i could use an else here instead)
+        # same as for the normal
+        if [str(Hint.Red), str(guess[i])] in red_feedback:
+            white_feedback.append([str(Hint.Empty), str(guess[i])])
+        elif [str(Hint.White), str(guess[i])] in white_feedback:
+            white_feedback.append([str(Hint.Empty), str(guess[i])])
+        else:
+            white_feedback.append([str(Hint.White), str(guess[i])])"""
+    
+
+    # recursively runs through guess, assigning white pegs according to secret and red_pegs
+    def check_through_guess(guess_left: list, running_feedback : list) -> list[bool]:
+        if not guess_left:
+            return running_feedback
+        
+        current_peg : Code = guess_left[0]
+
+        if current_peg in secret:
+            match check_if_dupe(current_peg, secret):
+                case True:
+                    new_hint : bool = occurs_once(current_peg, red_pegs, running_feedback)
+
+                case False:
+                    new_hint : bool = occurs_twice(current_peg, red_pegs, running_feedback)
+        else:
+            new_hint : bool = False
+        
+        return(guess_left[1:], running_feedback + [new_hint])
+    
+
+    # merges red and white pegs, with empty pegs filling in the spaces
+    def join_hints(red_pegs : list, white_pegs : Feedback) -> Feedback: # TODO
+        pass
+
+
+    # to order pegs from red to white to empty
+    def sort_hints(feedback: list[Hint]) -> Feedback: 
+        feedback_order = {Hint.Red: 0, Hint.White: 1, Hint.Empty: 2}
+        return sorted(feedback, key=lambda x: feedback_order[x])
+
+
+    feedback : list = check_through_guess(list[guess], [])
+    return tuple(feedback)
+
+
+
+
 
 # imperative version (code_difficulty for brain aid)
-
+"""
 def get_feedback(guess : Guess, secret: Secret, code_difficulty: str) -> list[bool, Feedback]:
     if guess == secret:
         feedback : Feedback = (Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red)
@@ -468,20 +557,19 @@ def get_feedback(guess : Guess, secret: Secret, code_difficulty: str) -> list[bo
         feedback_sorted = sorted(feedback, key=lambda x: feedback_order[x])
 
         return [False, tuple(feedback_sorted)]
-
+"""
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
             
 
-
-def display_board(game_board: Board):
+def display_board(game_board: Board): # TODO
     pass
 
 
-def update_board(game_board: Board, update: Union[Guess, Feedback]) -> Board:
+def update_board(game_board: Board, update: Union[Guess, Feedback]) -> Board: # TODO
     pass
 
 
-def announce_winner(game_finished: bool, players: tuple) -> None: # okay
+def announce_winner(game_finished: bool, players: tuple) -> None: 
     match game_finished:
         case True:
             print(players[0], "has won the game!")
@@ -489,19 +577,19 @@ def announce_winner(game_finished: bool, players: tuple) -> None: # okay
             print(players[1], "has won the game!")
 
 
-
 # ---------- Program Start Flow ----------
 if __name__=="__main__":
     print(mastermind_intro)
 
     # Mimi's TEST CODE (for get_feedback)
-    """
+
+    secret_code : Secret = normal_secret_code()
+    guess: Guess = get_guess()
+
     print()
     print()
     print()
 
-    secret_code : Secret = normal_secret_code()
-    guess: Guess = get_guess()
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the normal secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
@@ -509,12 +597,14 @@ if __name__=="__main__":
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
 
+
+    secret_code : Secret = hard_secret_code()
+    guess: Guess = get_guess()
+
     print()
     print()
     print()
 
-    secret_code : Secret = hard_secret_code()
-    guess: Guess = get_guess()
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the hard secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
@@ -525,11 +615,10 @@ if __name__=="__main__":
     print()
     print()
     print()
-    """
+
 
     # Gelo's TEST CODE (for start_gameplay)
+    """
     while True:
         receive_main_menu_input()
-
-
-    
+    """
