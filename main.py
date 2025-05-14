@@ -168,12 +168,14 @@ emptyGuess : Guess = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 # ---------- Feedback Type ----------
 Feedback: TypeAlias = tuple[Hint, Hint, Hint, Hint]
-emptyFeedback : Feedback = tuple[Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty]
+#emptyFeedback : Feedback = tuple[Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty]
+emptyFeedback : Feedback = (Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty) # TEMPORARY: for the purpose of testing update_board()
 
 
 # ---------- Row Type ----------
 Row: TypeAlias = tuple[Guess, Feedback]
-emptyRow: Row = tuple[emptyGuess, emptyFeedback]
+#emptyRow: Row = tuple[emptyGuess, emptyFeedback]
+emptyRow: Row = (emptyGuess, emptyFeedback) # TEMPORARY: for the purpose of testing update_board()
 
 
 # ---------- Board Type ----------
@@ -181,7 +183,8 @@ Normal_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
 Hard_Board: TypeAlias = tuple[Row, Row, Row, Row] 
 Board: TypeAlias = Normal_Board | Hard_Board
 
-empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
+#empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
+empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) # TEMPORARY: for the purpose of testing update_board()
 empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
 
 
@@ -463,8 +466,8 @@ def display_board(game_board: Board): # TODO
 
 # TODO: gelo's doing this
 def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback) -> Board:
-    new_row: Row = (Guess, Feedback)
-    return game_board + new_row
+    new_row: Row = (new_guess, new_feedback)
+    return (new_row, ) + game_board[:-1]
 
 
 def announce_winner(game_finished: bool, players: tuple) -> None: 
@@ -488,4 +491,12 @@ if __name__=="__main__":
     sample_guess: Guess = get_guess()
     sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
     updated_board: Board = update_board(sample_board, sample_guess, sample_feedback)
-    print(updated_board)
+    print("\n\n-------------------- MINI TEST RESULT (for update_board function) --------------------")
+    print(f"\nReturned Board Value TYPE:{type(updated_board)}")
+    print(f"\n---------- Current Board ----------")
+    print(f"\nRow 1 Guess:{updated_board[0][0]}\nRow 1 Feedback:{updated_board[0][1]}")
+    print(f"\nRow 2 Guess:{updated_board[1][0]}\nRow 2 Feedback:{updated_board[1][1]}")
+    print(f"\nRow 3 Guess:{updated_board[2][0]}\nRow 3 Feedback:{updated_board[2][1]}")
+    print(f"\nRow 4 Guess:{updated_board[3][0]}\nRow 4 Feedback:{updated_board[3][1]}")
+    print(f"\nRow 5 Guess:{updated_board[4][0]}\nRow 5 Feedback:{updated_board[4][1]}")
+    print(f"\nRow 6 Guess:{updated_board[5][0]}\nRow 6 Feedback:{updated_board[5][1]}")
