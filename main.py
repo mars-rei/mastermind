@@ -481,7 +481,7 @@ def update_board(game_board: Board, update: Union[Guess, Feedback]) -> Board:
     pass
 
 
-def announce_winner(game_finished: bool, players: list) -> None: # okay
+def announce_winner(game_finished: bool, players: tuple) -> None: # okay
     match game_finished:
         case True:
             print(players[0], "has won the game!")
