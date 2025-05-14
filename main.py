@@ -392,21 +392,32 @@ def get_guess(guess_size: int = 1) -> Guess:
 
 # functional and declarative version
 
-def get_feedback(guess: Guess, secret: Secret, code_difficulty: str) -> tuple[bool, Feedback]:
+def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
     if guess == secret:
         return [True, tuple([Hint.Red] * 4)]
     else:
-        red : list = get_red_hints(guess, secret)
+        red : list = get_red_hints(guess, secret) # structure is a list of tuples
         print('red hint pegs:', red)
-        white : Feedback = get_white_hints(guess, secret, red)
+        white : list = get_white_hints(guess, secret, red) # structure is a list of tuples
         print('white hint pegs:', white)
-        final_feedback : Feedback = join_hints(red, white)
+        feedback : list[Hint] = join_hints(red, white)
+        final_feedback : Feedback = sort_hints(feedback) 
         return [False, final_feedback]
-    
+
+# merges red and white pegs, with empty pegs filling in the spaces
+def join_hints(red_pegs : list, white_pegs : Feedback) -> list[Hint]:
+    return list(map(lambda i: Hint.Red if red_pegs[i][0] else Hint.White if white_pegs[i][0] else Hint.Empty, range(4)))
+
+def sort_hints(feedback: list[Hint]) -> Feedback: 
+    feedback_order = {Hint.Red: 0, Hint.White: 1, Hint.Empty: 2}
+    return tuple(sorted(feedback, key=lambda x: feedback_order[x]))
+
+ 
 def get_red_hints(guess: Guess, secret: Secret) -> list:
     return [(True, guess[i]) if guess[i] == secret[i] else (False, guess[i]) for i in range(len(guess))]
 
-def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback: # TODO
+
+def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback:
 
     # checks if peg is a duplicated peg in the secret code
     def check_if_dupe(peg : Code, secret : Secret) -> bool: 
@@ -415,48 +426,26 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback
 
     # checks how many times peg has been matched (red)
     def check_guessed_correctly(peg : Code, red_pegs : list) -> int: 
-        return red_pegs.count([True, peg])
+        return red_pegs.count((True, peg))
     
 
     # checks how many times peg has almost been matched (white)
-    def check_almost_guessed(peg : Code, running_feedback : list) -> int: 
-        return running_feedback.count([True, peg])
+    def check_almost_guessed(peg : Code, running_feedback : list) -> int:
+        return running_feedback.count((True, peg))
     
 
     # is a single peg in the secret
-    def occurs_once(peg : Code, red_pegs : list, running_feedback : list) -> bool:
-        return (check_guessed_correctly(peg, red_pegs) != 1 and check_almost_guessed(peg, running_feedback) != 1)
+    def occurs_once(peg : Code, red_pegs : list, running_feedback : list) -> tuple[bool, Code]:
+        return [(check_guessed_correctly(peg, red_pegs) == 0 and check_almost_guessed(peg, running_feedback) == 0), peg]
 
 
     # is a duplicate peg in the secret
-    def occurs_twice(peg : Code, red_pegs : list, running_feedback : list) -> bool: # TODO
-        pass
-
-
-    # here for reference
-    """if secret_occurrences == 2: # if it is the duplicated peg
-        if red_feedback.count([str(Hint.Red), str(guess[i])]) == 2: # if duplicated pegs have both been matched
-            white_feedback.append([str(Hint.Empty), str(guess[i])])
-        elif white_feedback.count([str(Hint.White), str(guess[i])]) == 2: # if duplicated pegs have both been guessed in wrong place
-            white_feedback.append([str(Hint.Empty), str(guess[i])])
-
-        elif red_feedback.count([str(Hint.Red), str(guess[i])]) == 1 and white_feedback.count([str(Hint.White), str(guess[i])]) == 1:
-            white_feedback.append([str(Hint.Empty), str(guess[i])]) # both pegs have been guessed
-        else:
-            white_feedback.append([str(Hint.White), str(guess[i])]) # only make white if both pegs haven't been guessed
-        
-    elif secret_occurrences == 1: # isn't a duplicated peg (i think i could use an else here instead)
-        # same as for the normal
-        if [str(Hint.Red), str(guess[i])] in red_feedback:
-            white_feedback.append([str(Hint.Empty), str(guess[i])])
-        elif [str(Hint.White), str(guess[i])] in white_feedback:
-            white_feedback.append([str(Hint.Empty), str(guess[i])])
-        else:
-            white_feedback.append([str(Hint.White), str(guess[i])])"""
-    
+    def occurs_twice(peg : Code, red_pegs : list, running_feedback : list) -> tuple[bool, Code]:
+        return [((check_guessed_correctly(peg, red_pegs) + check_almost_guessed(peg, running_feedback)) < 2), peg]
+  
 
     # recursively runs through guess, assigning white pegs according to secret and red_pegs
-    def check_through_guess(guess_left: list, running_feedback : list) -> list[bool]:
+    def check_through_guess(guess_left: tuple, running_feedback : list) -> list:
         if not guess_left:
             return running_feedback
         
@@ -465,108 +454,29 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback
         if current_peg in secret:
             match check_if_dupe(current_peg, secret):
                 case True:
-                    new_hint : bool = occurs_once(current_peg, red_pegs, running_feedback)
+                    new_hint : tuple[bool, Code] = occurs_twice(current_peg, red_pegs, running_feedback)
 
                 case False:
-                    new_hint : bool = occurs_twice(current_peg, red_pegs, running_feedback)
+                    new_hint : tuple[bool, Code] = occurs_once(current_peg, red_pegs, running_feedback)
+                    
         else:
-            new_hint : bool = False
+            new_hint : tuple[bool, Code] = (False, current_peg)
         
-        return(guess_left[1:], running_feedback + [new_hint])
-    
-
-    # merges red and white pegs, with empty pegs filling in the spaces
-    def join_hints(red_pegs : list, white_pegs : Feedback) -> Feedback: # TODO
-        pass
+        return check_through_guess(guess_left[1:], running_feedback + [new_hint])
 
 
-    # to order pegs from red to white to empty
-    def sort_hints(feedback: list[Hint]) -> Feedback: 
-        feedback_order = {Hint.Red: 0, Hint.White: 1, Hint.Empty: 2}
-        return sorted(feedback, key=lambda x: feedback_order[x])
-
-
-    feedback : list = check_through_guess(list[guess], [])
-    return tuple(feedback)
-
-
-
-
-
-# imperative version (code_difficulty for brain aid)
-"""
-def get_feedback(guess : Guess, secret: Secret, code_difficulty: str) -> list[bool, Feedback]:
-    if guess == secret:
-        feedback : Feedback = (Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red, Code_Peg_Option.Red)
-        return [True, feedback]
-    else:
-        red_feedback = []
-        for i in range(len(guess)):
-            if guess[i] == secret[i]:
-                red_feedback.append([str(Hint.Red), str(guess[i])])
-            else:
-                red_feedback.append([str(Hint.Empty), str(guess[i])])
-
-        white_feedback = [] 
-        for i in range(len(guess)):
-            if guess[i] in secret:
-                if code_difficulty == "normal":
-                    if [str(Hint.Red), str(guess[i])] in red_feedback:
-                        white_feedback.append([str(Hint.Empty), str(guess[i])])
-                    elif [str(Hint.White), str(guess[i])] in white_feedback:
-                        white_feedback.append([str(Hint.Empty), str(guess[i])])
-                    else:
-                        white_feedback.append([str(Hint.White), str(guess[i])])
-
-                if code_difficulty == "hard":
-                    secret_occurrences = secret.count(guess[i]) # checks for duplicated peg
-
-                    if secret_occurrences == 2: # if it is the duplicated peg
-                        if red_feedback.count([str(Hint.Red), str(guess[i])]) == 2: # if duplicated pegs have both been matched
-                            white_feedback.append([str(Hint.Empty), str(guess[i])])
-                        elif white_feedback.count([str(Hint.White), str(guess[i])]) == 2: # if duplicated pegs have both been guessed in wrong place
-                            white_feedback.append([str(Hint.Empty), str(guess[i])])
-
-                        elif red_feedback.count([str(Hint.Red), str(guess[i])]) == 1 and white_feedback.count([str(Hint.White), str(guess[i])]) == 1:
-                            white_feedback.append([str(Hint.Empty), str(guess[i])]) # both pegs have been guessed
-                        else:
-                            white_feedback.append([str(Hint.White), str(guess[i])]) # only make white if both pegs haven't been guessed
-                        
-                    elif secret_occurrences == 1: # isn't a duplicated peg (i think i could use an else here instead)
-                        # same as for the normal
-                        if [str(Hint.Red), str(guess[i])] in red_feedback:
-                            white_feedback.append([str(Hint.Empty), str(guess[i])])
-                        elif [str(Hint.White), str(guess[i])] in white_feedback:
-                            white_feedback.append([str(Hint.Empty), str(guess[i])])
-                        else:
-                            white_feedback.append([str(Hint.White), str(guess[i])])
-
-            else:
-                white_feedback.append([str(Hint.Empty), str(guess[i])])
-
-        feedback = []
-        for i in range(len(guess)):
-            if red_feedback[i][0] == "red":
-                feedback.append(Hint.Red)
-            elif white_feedback[i][0] == "white":
-                feedback.append(Hint.White)
-            else:
-                feedback.append(Hint.Empty)
-
-        feedback_order = {Hint.Red: 0, Hint.White: 1, Hint.Empty: 2}
-        feedback_sorted = sorted(feedback, key=lambda x: feedback_order[x])
-
-        return [False, tuple(feedback_sorted)]
-"""
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------
-            
+    feedback : list = check_through_guess(guess, [])
+    return feedback
+           
 
 def display_board(game_board: Board): # TODO
     pass
 
 
-def update_board(game_board: Board, update: Union[Guess, Feedback]) -> Board: # TODO
-    pass
+# TODO: gelo's doing this
+def update_board(game_board: Board, newGuess: Guess, newFeedback: Feedback) -> Board:
+    newRow: Row = (Guess, Feedback)
+    return game_board + newRow
 
 
 def announce_winner(game_finished: bool, players: tuple) -> None: 
@@ -593,7 +503,7 @@ if __name__=="__main__":
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the normal secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
-    feedback: tuple = get_feedback(guess, secret_code, "normal")
+    feedback: tuple = get_feedback(guess, secret_code)
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
 
@@ -608,7 +518,7 @@ if __name__=="__main__":
     print('the guess is:', guess[0], guess[1], guess[2], guess[3])
 
     print('the hard secret code is:', secret_code[0], secret_code[1], secret_code[2], secret_code[3])
-    feedback: tuple = get_feedback(guess, secret_code, "hard")
+    feedback: tuple = get_feedback(guess, secret_code)
     print('is game finished?:', feedback[0])
     print('feedback:', feedback[1][0], feedback[1][1], feedback[1][2], feedback[1][3])
 
