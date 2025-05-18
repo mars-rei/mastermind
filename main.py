@@ -164,7 +164,7 @@ emptySecret : Secret = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 # ---------- Guess Type ----------
 Guess: TypeAlias = tuple[Code, Code, Code, Code]
-emptyGuess : Guess = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
+emptyGuess : Guess = (Code.Empty, Code.Empty, Code.Empty, Code.Empty) # marsy changed to round brackets because the ones above don't print as expected
 
 
 # ---------- Feedback Type ----------
@@ -222,6 +222,15 @@ CODE PEG SELECTION ---------------------------
 (6) \033[38;5;94mBrown\033[0m
 
 Enter an option (1-6): 
+"""
+
+# max num characters in a colour is 6 (use padding of one on each side)
+row_str : str = """
+ -------- -------- -------- --------   -------- -------- -------- -------- 
+|        |        |        |        | |        |        |        |        |
+|        |        |        |        | |        |        |        |        |
+|        |        |        |        | |        |        |        |        |
+ -------- -------- -------- --------   -------- -------- -------- -------- 
 """
 
 # ---------- Option Interface Visuals ----------
@@ -461,8 +470,36 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
     return feedback
            
 
-def display_board(game_board: Board): # TODO
-    pass
+def display_board(game_board: Board) -> None: # TODO - marsy started this off - currently imperative
+    print("DISPLAYING BOARD ---------------------------")
+    print()
+    print(" GUESS                                 FEEDBACK")
+    print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
+    for row in game_board:
+        print("|        |        |        |        | |        |        |        |        |")
+        for section in row:
+            for peg in section:
+                print("| ", end="")
+                spaces = ""
+                if len(str(peg)) != 6:
+                    spaces = " " * (6-len(str(peg)))
+                print(peg, end="")
+                print(spaces, end=" ")
+            print("| ", end="")
+        print()
+        print("|        |        |        |        | |        |        |        |        |")
+        print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
+
+
+
+
+
+
+
+
+
+
+
 
 
 # TODO: gelo's doing this
@@ -482,22 +519,27 @@ def announce_winner(game_finished: bool, players: tuple) -> None:
 # ---------- Program Start Flow ----------
 if __name__=="__main__":
     print(mastermind_intro) 
+
     """
     while True:
         receive_main_menu_input()
     """
+
     # Gelo's TEST CODE (for update_board)
     sample_secret_code: Secret = normal_secret_code()
     sample_board: Board = empty_normal_board
     sample_guess: Guess = get_guess()
     sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board: Board = update_board(sample_board, sample_guess, sample_feedback)
+    updated_board: Board = update_board(sample_board, sample_guess, sample_feedback[1]) # note to gelo : you forgot to separate the feedback (tuple of boolean and feedback)
     print("\n\n-------------------- MINI TEST RESULT (for update_board function) --------------------")
     print(f"\nReturned Board Value TYPE:{type(updated_board)}")
     print(f"\n---------- Current Board ----------")
-    print(f"\nRow 1 Guess:{updated_board[0][0]}\nRow 1 Feedback:{updated_board[0][1]}")
-    print(f"\nRow 2 Guess:{updated_board[1][0]}\nRow 2 Feedback:{updated_board[1][1]}")
-    print(f"\nRow 3 Guess:{updated_board[2][0]}\nRow 3 Feedback:{updated_board[2][1]}")
-    print(f"\nRow 4 Guess:{updated_board[3][0]}\nRow 4 Feedback:{updated_board[3][1]}")
-    print(f"\nRow 5 Guess:{updated_board[4][0]}\nRow 5 Feedback:{updated_board[4][1]}")
-    print(f"\nRow 6 Guess:{updated_board[5][0]}\nRow 6 Feedback:{updated_board[5][1]}")
+    print(f"\nRow 1 Guess:{updated_board[0]}\nRow 1 Feedback:{updated_board[0]}")
+    print(f"\nRow 2 Guess:{updated_board[1]}\nRow 2 Feedback:{updated_board[1]}")
+    print(f"\nRow 3 Guess:{updated_board[2]}\nRow 3 Feedback:{updated_board[2]}")
+    print(f"\nRow 4 Guess:{updated_board[3]}\nRow 4 Feedback:{updated_board[3]}")
+    print(f"\nRow 5 Guess:{updated_board[4]}\nRow 5 Feedback:{updated_board[4]}")
+    print(f"\nRow 6 Guess:{updated_board[5]}\nRow 6 Feedback:{updated_board[5]}")
+
+    # mimi's test code (for display_board) - you can see the update board in board format now :))
+    display_board(updated_board)
