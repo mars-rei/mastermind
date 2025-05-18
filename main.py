@@ -360,17 +360,23 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Un
     if turn_count == 7 or game_finished == True:
         return game_finished
     else:
-        print(f"\nATTEMPT NO.#{turn_count} ----------")
-        round: tuple[Board, bool] = play_round(game_board, players, secret_code)
+        print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
+        round: tuple[Board, bool] = play_round(game_board, secret_code)
         return play_game(round[0], players, secret_code, turn_count+1, round[1])
 
 
-# TODO: angelo :3 - IN PROGRESS 
-def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
-    if game_mode == "Single_Player" or game_mode == "Multiplayer":
+# TODO: angelo :3 - IN-PROGRESS function
+def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> Union[None, bool]:
+    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:
+        print("""
+                                         _______________
+----------------------------------------| SINGLE PLAYER |----------------------------------------
+----------------------------------------|   GAME MODE   |----------------------------------------
+----------------------------------------|_______________|----------------------------------------
+        """)
         game_session: tuple[bool, tuple] = play_game(game_board, players, secret_code)
         announce_winner(game_session[0], players)
-    if game_mode == "Campaign":
+    if game_mode == Main_Menu_Option.Campaign:
         pass
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -378,7 +384,7 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
 
 def get_guess(guess_size: int = 1) -> Guess:
     print() # just for formatting - need to figure out
-    print(f"Choice for Code Peg No.#{guess_size}")
+    print(f"---------- CODE PEG CHOICE NO.#{guess_size} ----------")
     if guess_size == 4:
         return (receive_code_peg_input(),)
     else:
