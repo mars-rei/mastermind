@@ -192,9 +192,9 @@ empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
 # ---------- Interface Visuals ----------
 
 mastermind_intro : str = """
- ___________________________________
-|     MASTERMIND - Command Line     |
-|___________________________________|
+                     ___________________________________
+<<<<<<<<<<<<<<<<<<<<|     MASTERMIND - Command Line     |>>>>>>>>>>>>>>>>>>>>
+<<<<<<<<<<<<<<<<<<<<|___________________________________|>>>>>>>>>>>>>>>>>>>>
 """
 
 
@@ -245,7 +245,7 @@ def receive_main_menu_input() -> None: # TODO
             start_gameplay(selected_option, empty_normal_board, (CodeBreaker, CPU), normal_secret_code())
         case Main_Menu_Option.Multiplayer:
             # TODO - Document/Create start_multiplayer Function
-            print("Starting multiplayer mode...")
+            start_gameplay(selected_option, empty_normal_board, (CodeBreaker, CPU), normal_secret_code()) # testing purposes, will remove on (19/05/2025)
         case Main_Menu_Option.Campaign:
             # TODO - Document/Create start_campaign Function
             print("Starting campaign mode...")
@@ -345,14 +345,13 @@ def hard_secret_code() -> Secret:
 # gelo is working on start_gameplay ------------------------------------------------------------------------------------------------------------------------
 
 # IN-PROGRESS function
-def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> tuple[Board, bool]:    
+def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int) -> tuple[Board, bool]:    
     display_board(game_board)
     new_guess: Guess = get_guess()
-    first_board_update: Board = update_board(game_board, new_guess)
     new_feedback: Feedback = get_feedback(new_guess, secret_code)
-    second_board_update: Board = update_board(first_board_update, new_feedback)
-    display_board(second_board_update)
-    return (second_board_update, new_feedback[0])
+    updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
+    display_board(updated_board)
+    return (updated_board, new_feedback[0])
 
 
 # IN-PROGRESS function
@@ -361,21 +360,21 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Un
         return game_finished
     else:
         print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
-        round: tuple[Board, bool] = play_round(game_board, secret_code)
+        round: tuple[Board, bool] = play_round(game_board, secret_code, turn_count)
         return play_game(round[0], players, secret_code, turn_count+1, round[1])
 
 
 # TODO: angelo :3 - IN-PROGRESS function
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> Union[None, bool]:
     if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:
-        print("""
+        print(f"""
                                          _______________
-----------------------------------------| SINGLE PLAYER |----------------------------------------
+----------------------------------------| {game_mode.name.upper()} |----------------------------------------
 ----------------------------------------|   GAME MODE   |----------------------------------------
 ----------------------------------------|_______________|----------------------------------------
         """)
-        game_session: tuple[bool, tuple] = play_game(game_board, players, secret_code)
-        announce_winner(game_session[0], players)
+        game_session: bool = play_game(game_board, players, secret_code)
+        announce_winner(game_session, players)
     if game_mode == Main_Menu_Option.Campaign:
         pass
 
@@ -396,9 +395,9 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
         return [True, tuple([Hint.Red] * 4)]
     else:
         red : list = get_red_hints(guess, secret) # structure is a list of tuples
-        print('red hint pegs:', red)
+        #print('red hint pegs:', red)
         white : list = get_white_hints(guess, secret, red) # structure is a list of tuples
-        print('white hint pegs:', white)
+        #print('white hint pegs:', white)
         feedback : list[Hint] = join_hints(red, white)
         final_feedback : Feedback = sort_hints(feedback) 
         return [False, final_feedback]
@@ -470,7 +469,7 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
            
 
 def display_board(game_board: Board) -> None: # TODO - marsy started this off - currently imperative
-    print("DISPLAYING BOARD ---------------------------")
+    print("\nDISPLAYING BOARD ---------------------------")
     print()
     print(" GUESS                                 FEEDBACK")
     print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
@@ -508,12 +507,13 @@ def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, tu
             return game_board[0:5] + (new_row, )
 
 
-def announce_winner(game_finished: bool, players: tuple) -> None: 
+def announce_winner(game_finished: bool, players: tuple) -> None:
+    print("\n---------- FINAL RESULTS ----------")
     match game_finished:
         case True:
-            print(players[0], "has won the game!")
+            print(f"\n{players[0]} has won the game!")
         case False:
-            print(players[1], "has won the game!")
+            print(f"\n{players[1]} has won the game!")
 
 
 # ---------- Program Start Flow ----------
