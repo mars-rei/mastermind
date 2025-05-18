@@ -224,14 +224,6 @@ CODE PEG SELECTION ---------------------------
 Enter an option (1-6): 
 """
 
-# max num characters in a colour is 6 (use padding of one on each side)
-row_str : str = """
- -------- -------- -------- --------   -------- -------- -------- -------- 
-|        |        |        |        | |        |        |        |        |
-|        |        |        |        | |        |        |        |        |
-|        |        |        |        | |        |        |        |        |
- -------- -------- -------- --------   -------- -------- -------- -------- 
-"""
 
 # ---------- Option Interface Visuals ----------
 
@@ -489,17 +481,6 @@ def display_board(game_board: Board) -> None: # TODO - marsy started this off - 
         print()
         print("|        |        |        |        | |        |        |        |        |")
         print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
-
-
-
-
-
-
-
-
-
-
-
 
 
 # TODO: gelo's doing this
