@@ -154,6 +154,7 @@ class CPU:
         return "CPU"
 
 Player : TypeAlias = CodeMaker | CodeBreaker | CPU
+Players : TypeAlias = tuple[CodeBreaker, CodeMaker] | tuple[CodeBreaker, CPU]
 
 
 # ---------- Secret Code Type ----------
