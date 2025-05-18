@@ -410,7 +410,7 @@ def get_red_hints(guess: Guess, secret: Secret) -> list:
     return [(True, guess[i]) if guess[i] == secret[i] else (False, guess[i]) for i in range(len(guess))]
 
 
-def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> Feedback:
+def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
     # checks if peg is a duplicated peg in the secret code
     def check_if_dupe(peg : Code, secret : Secret) -> bool: 
         return secret.count(peg) == 2
