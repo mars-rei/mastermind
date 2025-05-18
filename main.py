@@ -214,12 +214,12 @@ Enter an option (1-4):
 code_peg_options : str = """
 CODE PEG SELECTION ---------------------------
 
-(1) Orange
-(2) Green
-(3) Blue
-(4) Yellow
-(5) Purple
-(6) Brown
+(1) \033[38;5;208mOrange\033[0m
+(2) \033[38;5;82mGreen\033[0m
+(3) \033[38;5;12mBlue\033[0m
+(4) \033[38;5;184mYellow\033[0m
+(5) \033[38;5;134mPurple\033[0m
+(6) \033[38;5;94mBrown\033[0m
 
 Enter an option (1-6): 
 """
@@ -287,17 +287,17 @@ def receive_code_peg_input() -> Code:
         if selected_option:
             match selected_option:
                 case Code_Peg_Option.Orange:
-                    print("You have chosen an orange peg.")
+                    print("You have chosen an \033[38;5;208morange\033[0m peg.")
                 case Code_Peg_Option.Green:
-                    print("You have chosen a green peg.")
+                    print("You have chosen a \033[38;5;82mgreen\033[0m peg.")
                 case Code_Peg_Option.Blue:
-                    print("You have chosen a blue peg.")
+                    print("You have chosen a \033[38;5;12mblue\033[0m peg.")
                 case Code_Peg_Option.Yellow:
-                    print("You have chosen a yellow peg.")
+                    print("You have chosen a \033[38;5;184myellow\033[0m peg.")
                 case Code_Peg_Option.Purple:
-                    print("You have chosen a purple peg.")
+                    print("You have chosen a \033[38;5;134mpurple\033[0m peg.")
                 case Code_Peg_Option.Brown:
-                    print("You have chosen a brown peg.")
+                    print("You have chosen a \033[38;5;94mbrown\033[0m peg.")
             return selected_option
         else:
             print("Invalid peg choice.")
