@@ -351,6 +351,7 @@ def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secre
     first_board_update: Board = update_board(game_board, new_guess)
     new_feedback: Feedback = get_feedback(new_guess, secret_code)
     second_board_update: Board = update_board(first_board_update, new_feedback)
+    display_board(second_board_update)
     return (second_board_update, new_feedback[0])
 
 
@@ -364,7 +365,7 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Un
         return play_game(round[0], players, secret_code, turn_count+1, round[1])
 
 
-# TODO: angelo :3
+# TODO: angelo :3 - IN PROGRESS 
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
     if game_mode == "Single_Player" or game_mode == "Multiplayer":
         game_session: tuple[bool, tuple] = play_game(game_board, players, secret_code)
@@ -483,10 +484,22 @@ def display_board(game_board: Board) -> None: # TODO - marsy started this off - 
         print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
 
 
-# TODO: gelo's doing this
-def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback) -> Board:
+
+def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
     new_row: Row = (new_guess, new_feedback)
-    return (new_row, ) + game_board[:-1]
+    match turn_count:
+        case 1:
+            return (new_row, ) + game_board[:-1]
+        case 2:
+            return game_board[:-5] + (new_row, ) + game_board[2:]
+        case 3:
+            return game_board[:-4] + (new_row, ) + game_board[3:]
+        case 4:
+            return game_board[:-3] + (new_row, ) + game_board[4:]
+        case 5:
+            return game_board[:-2] + (new_row, ) + game_board[5:]
+        case 6:
+            return game_board[0:5] + (new_row, )
 
 
 def announce_winner(game_finished: bool, players: tuple) -> None: 
@@ -501,17 +514,17 @@ def announce_winner(game_finished: bool, players: tuple) -> None:
 if __name__=="__main__":
     print(mastermind_intro) 
 
-    """
+
     while True:
         receive_main_menu_input()
-    """
 
     # Gelo's TEST CODE (for update_board)
+    """
     sample_secret_code: Secret = normal_secret_code()
     sample_board: Board = empty_normal_board
     sample_guess: Guess = get_guess()
     sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board: Board = update_board(sample_board, sample_guess, sample_feedback[1]) # note to gelo : you forgot to separate the feedback (tuple of boolean and feedback)
+    updated_board: Board = update_board(sample_board, sample_guess, sample_feedback[1], 1) # note to gelo : you forgot to separate the feedback (tuple of boolean and feedback)
     print("\n\n-------------------- MINI TEST RESULT (for update_board function) --------------------")
     print(f"\nReturned Board Value TYPE:{type(updated_board)}")
     print(f"\n---------- Current Board ----------")
@@ -524,3 +537,87 @@ if __name__=="__main__":
 
     # mimi's test code (for display_board) - you can see the update board in board format now :))
     display_board(updated_board)
+
+
+    sample_guess: Guess = get_guess()
+    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
+    updated_board2: Board = update_board(updated_board, sample_guess, sample_feedback[1], 2)
+    print(f"\nReturned Board Value TYPE:{type(updated_board2)}")
+    print(f"\n---------- Current Board ----------")
+    print(len(updated_board2))
+    print(f"\nRow 1 Guess:{updated_board2[0][0]}\nRow 1 Feedback:{updated_board2[0][1]}")
+    print(f"\nRow 2 Guess:{updated_board2[1][0]}\nRow 2 Feedback:{updated_board2[1][1]}")
+    print(f"\nRow 3 Guess:{updated_board2[2][0]}\nRow 3 Feedback:{updated_board2[2][1]}")
+    print(f"\nRow 4 Guess:{updated_board2[3][0]}\nRow 4 Feedback:{updated_board2[3][1]}")
+    print(f"\nRow 5 Guess:{updated_board2[4][0]}\nRow 5 Feedback:{updated_board2[4][1]}")
+    print(f"\nRow 6 Guess:{updated_board2[5][0]}\nRow 6 Feedback:{updated_board2[5][1]}")
+
+    display_board(updated_board2)
+
+
+
+    sample_guess: Guess = get_guess()
+    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
+    updated_board3: Board = update_board(updated_board2, sample_guess, sample_feedback[1], 3)
+    print(f"\nReturned Board Value TYPE:{type(updated_board3)}")
+    print(f"\n---------- Current Board ----------")
+    print(len(updated_board3))
+    print(f"\nRow 1 Guess:{updated_board3[0][0]}\nRow 1 Feedback:{updated_board3[0][1]}")
+    print(f"\nRow 2 Guess:{updated_board3[1][0]}\nRow 2 Feedback:{updated_board3[1][1]}")
+    print(f"\nRow 3 Guess:{updated_board3[2][0]}\nRow 3 Feedback:{updated_board3[2][1]}")
+    print(f"\nRow 4 Guess:{updated_board3[3][0]}\nRow 4 Feedback:{updated_board3[3][1]}")
+    print(f"\nRow 5 Guess:{updated_board3[4][0]}\nRow 5 Feedback:{updated_board3[4][1]}")
+    print(f"\nRow 6 Guess:{updated_board3[5][0]}\nRow 6 Feedback:{updated_board3[5][1]}")
+
+    display_board(updated_board3)
+
+
+    sample_guess: Guess = get_guess()
+    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
+    updated_board4: Board = update_board(updated_board3, sample_guess, sample_feedback[1], 4)
+    print(f"\nReturned Board Value TYPE:{type(updated_board4)}")
+    print(f"\n---------- Current Board ----------")
+    print(len(updated_board4))
+    print(f"\nRow 1 Guess:{updated_board4[0][0]}\nRow 1 Feedback:{updated_board4[0][1]}")
+    print(f"\nRow 2 Guess:{updated_board4[1][0]}\nRow 2 Feedback:{updated_board4[1][1]}")
+    print(f"\nRow 3 Guess:{updated_board4[2][0]}\nRow 3 Feedback:{updated_board4[2][1]}")
+    print(f"\nRow 4 Guess:{updated_board4[3][0]}\nRow 4 Feedback:{updated_board4[3][1]}")
+    print(f"\nRow 5 Guess:{updated_board4[4][0]}\nRow 5 Feedback:{updated_board4[4][1]}")
+    print(f"\nRow 6 Guess:{updated_board4[5][0]}\nRow 6 Feedback:{updated_board4[5][1]}")
+
+    display_board(updated_board4)
+    
+
+
+    sample_guess: Guess = get_guess()
+    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
+    updated_board5: Board = update_board(updated_board4, sample_guess, sample_feedback[1], 5)
+    print(f"\nReturned Board Value TYPE:{type(updated_board5)}")
+    print(f"\n---------- Current Board ----------")
+    print(len(updated_board5))
+    print(f"\nRow 1 Guess:{updated_board5[0][0]}\nRow 1 Feedback:{updated_board5[0][1]}")
+    print(f"\nRow 2 Guess:{updated_board5[1][0]}\nRow 2 Feedback:{updated_board5[1][1]}")
+    print(f"\nRow 3 Guess:{updated_board5[2][0]}\nRow 3 Feedback:{updated_board5[2][1]}")
+    print(f"\nRow 4 Guess:{updated_board5[3][0]}\nRow 4 Feedback:{updated_board5[3][1]}")
+    print(f"\nRow 5 Guess:{updated_board5[4][0]}\nRow 5 Feedback:{updated_board5[4][1]}")
+    print(f"\nRow 6 Guess:{updated_board5[5][0]}\nRow 6 Feedback:{updated_board5[5][1]}")
+
+    display_board(updated_board5)
+
+
+
+    sample_guess: Guess = get_guess()
+    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
+    updated_board6: Board = update_board(updated_board5, sample_guess, sample_feedback[1], 6)
+    print(f"\nReturned Board Value TYPE:{type(updated_board6)}")
+    print(f"\n---------- Current Board ----------")
+    print(len(updated_board6))
+    print(f"\nRow 1 Guess:{updated_board6[0][0]}\nRow 1 Feedback:{updated_board5[0][1]}")
+    print(f"\nRow 2 Guess:{updated_board6[1][0]}\nRow 2 Feedback:{updated_board5[1][1]}")
+    print(f"\nRow 3 Guess:{updated_board6[2][0]}\nRow 3 Feedback:{updated_board5[2][1]}")
+    print(f"\nRow 4 Guess:{updated_board6[3][0]}\nRow 4 Feedback:{updated_board5[3][1]}")
+    print(f"\nRow 5 Guess:{updated_board6[4][0]}\nRow 5 Feedback:{updated_board5[4][1]}")
+    print(f"\nRow 6 Guess:{updated_board6[5][0]}\nRow 6 Feedback:{updated_board6[5][1]}")
+
+    display_board(updated_board6)
+    """
