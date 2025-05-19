@@ -490,7 +490,7 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
     return feedback
 
 
-def print_in_colour(peg: Union[Code, Hint]) -> None:
+def print_in_colour(peg: Union[Code, Hint]) -> str:
     match peg:
         case Code_Peg_Option.Orange:
             return "\033[38;5;208morange\033[0m"
