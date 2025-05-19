@@ -360,10 +360,10 @@ def receive_confirmation_input(tupleInput: Union[Guess, Secret]) -> Confirmation
 
         match selected_option:
             case Confirmation_Option.Yes:
-                print("\nGuess Confirmed.")
+                print("\nGuess Confirmed.") # technically you'd call this for make secret code too though?
                 return True
             case Confirmation_Option.No:
-                print("\nGuess Cancelled.")
+                print("\nGuess Cancelled.") # technically you'd call this for make secret code too though?
                 return False
   
 
@@ -428,6 +428,8 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
         end_game(game_session, players, secret_code)
     if game_mode == Main_Menu_Option.Campaign:
         pass
+        stage_one: bool = play_game()
+        # i'm editing on a separate file atm... will paste it when done :O
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
