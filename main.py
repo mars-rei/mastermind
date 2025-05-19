@@ -327,17 +327,9 @@ def receive_code_peg_input() -> Code:
         if selected_option:
             match selected_option:
                 case Code_Peg_Option.Orange:
-                    print("You have chosen an \033[38;5;208morange\033[0m peg.")
-                case Code_Peg_Option.Green:
-                    print("You have chosen a \033[38;5;82mgreen\033[0m peg.")
-                case Code_Peg_Option.Blue:
-                    print("You have chosen a \033[38;5;12mblue\033[0m peg.")
-                case Code_Peg_Option.Yellow:
-                    print("You have chosen a \033[38;5;184myellow\033[0m peg.")
-                case Code_Peg_Option.Purple:
-                    print("You have chosen a \033[38;5;134mpurple\033[0m peg.")
-                case Code_Peg_Option.Brown:
-                    print("You have chosen a \033[38;5;94mbrown\033[0m peg.")
+                    print("You have chosen an " + print_in_colour(selected_option) + " peg.")
+                case _:
+                    print("You have chosen a " + print_in_colour(selected_option) + " peg.")
             return selected_option
         else:
             print("Invalid peg choice.")
@@ -516,6 +508,30 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
 
     feedback : list = check_through_guess(guess, [])
     return feedback
+
+
+def print_in_colour(peg: Union[Code, Hint]) -> None:
+    match peg:
+        case Code_Peg_Option.Orange:
+            return "\033[38;5;208morange\033[0m"
+        case Code_Peg_Option.Green:
+            return "\033[38;5;82mgreen\033[0m"
+        case Code_Peg_Option.Blue:
+            return "\033[38;5;12mblue\033[0m"
+        case Code_Peg_Option.Yellow:
+            return "\033[38;5;184myellow\033[0m"
+        case Code_Peg_Option.Purple:
+            return "\033[38;5;134mpurple\033[0m"
+        case Code_Peg_Option.Brown:
+            return "\033[38;5;94mbrown\033[0m"
+        case Code_Peg_Option.Empty:
+            return "     "
+        case Hint_Peg.White:
+            return "\033[38;5;15mwhite\033[0m"
+        case Hint_Peg.Red:
+            return "\033[38;5;124mred\033[0m"
+        case Hint_Peg.Empty:
+            return "     "
            
 
 def display_board(game_board: Board) -> None:
@@ -537,10 +553,10 @@ def display_board(game_board: Board) -> None:
     def format_peg(peg: Union[Code, Hint]) -> str:
         match len(str(peg)):
             case 6:
-                return f"| {str(peg)} "
+                return f"| {print_in_colour(peg)} "
             case _:
                 padding: str = " " * (6-len(str(peg)))
-                return f"| {str(peg)}{padding} "
+                return f"| {print_in_colour(peg)}{padding} "
             
 
     header : list[str] = [
@@ -574,7 +590,7 @@ def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, tu
 
 def end_game(game_finished: bool, players: tuple, secret: Secret) -> None:
     print("\n---------- SECRET CODE ----------")
-    print(*(str(peg) for peg in secret))
+    print(*(print_in_colour(peg) for peg in secret))
 
     print("\n---------- FINAL RESULTS ----------")
     match game_finished:
