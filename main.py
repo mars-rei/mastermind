@@ -127,7 +127,7 @@ Code: TypeAlias = Code_Peg_Option
 # ---------- Hint Peg Type ----------
 
 class Hint_Peg(Enum):
-    Empty = 0 # use optional type instead?
+    Empty = 0
     White = 1
     Red = 2
  
@@ -160,7 +160,7 @@ Players : TypeAlias = tuple[CodeBreaker, CodeMaker] | tuple[CodeBreaker, CPU]
 
 # ---------- Secret Code Type ----------
 Secret: TypeAlias = tuple[Code, Code, Code, Code]
-emptySecret : Secret = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
+emptySecret : Secret = (Code.Empty, Code.Empty, Code.Empty, Code.Empty)
 
 
 # ---------- Guess Type ----------
@@ -170,13 +170,12 @@ emptyGuess : Guess = (Code.Empty, Code.Empty, Code.Empty, Code.Empty)
 
 # ---------- Feedback Type ----------
 Feedback: TypeAlias = tuple[Hint, Hint, Hint, Hint]
-emptyFeedback : Feedback = (Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty) # TEMPORARY: for the purpose of testing update_board()
+emptyFeedback : Feedback = (Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty)
 
 
 # ---------- Row Type ----------
 Row: TypeAlias = tuple[Guess, Feedback]
-#emptyRow: Row = tuple[emptyGuess, emptyFeedback]
-emptyRow: Row = (emptyGuess, emptyFeedback) # TEMPORARY: for the purpose of testing update_board()
+emptyRow: Row = (emptyGuess, emptyFeedback) 
 
 
 # ---------- Board Type ----------
@@ -184,9 +183,8 @@ Normal_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
 Hard_Board: TypeAlias = tuple[Row, Row, Row, Row] 
 Board: TypeAlias = Normal_Board | Hard_Board
 
-#empty_normal_board: Normal_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
 empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) # TEMPORARY: for the purpose of testing update_board()
-empty_hard_board: Hard_Board = tuple[emptyRow, emptyRow, emptyRow, emptyRow]
+empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) # TEMPORARY: for the purpose of testing update_board()
 
 
 # ---------- Interface Visuals ----------
@@ -293,24 +291,6 @@ def receive_main_menu_input() -> None: # TODO
             sys.exit()
 
 
-# marsy's suggestion to new program flow
-"""def receive_main_menu_input() -> Main_Menu_Option:
-    print(main_menu_options)
-    selected_option = Main_Menu_Option.parse_main_menu_option(input("> "))
-    print()
-
-    match selected_option:
-        case Main_Menu_Option.Single_Player:
-            return Main_Menu_Option.Single_Player
-        case Main_Menu_Option.Multiplayer:
-            return Main_Menu_Option.Multiplayer
-        case Main_Menu_Option.Campaign:
-            return Main_Menu_Option.Campaign
-        case Main_Menu_Option.Exit:
-            print("Exiting Mastermind...")
-            exit()"""
-
-
 def receive_code_peg_input() -> Code: 
 
     '''
@@ -344,18 +324,18 @@ def receive_confirmation_input(tupleInput: Union[Guess, Secret]) -> Confirmation
     '''
 
     while True:
-        print("\nYour Guess: ")
-        print(*(str(peg) for peg in tupleInput))
-        print("Are you sure you want to continue?") # will probably change later on
+        print("\nYour Guess: ") # would rather substitute Guess with Choice so it would make sense when used for makeSecretCode too
+        print(*(print_in_colour(peg) for peg in tupleInput))
+        print("Are you sure you want to continue?") 
         selected_option = Confirmation_Option.parse_confirmation_option(input("> "))
         print()
 
         match selected_option:
             case Confirmation_Option.Yes:
-                print("\nGuess Confirmed.") # technically you'd call this for make secret code too though?
+                print("\nGuess Confirmed.") # would rather substitute Guess with Choice so it would make sense when used for makeSecretCode too
                 return True
             case Confirmation_Option.No:
-                print("\nGuess Cancelled.") # technically you'd call this for make secret code too though?
+                print("\nGuess Cancelled.") # would rather substitute Guess with Choice so it would make sense when used for makeSecretCode too
                 return False
   
 
@@ -438,8 +418,8 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
     if guess == secret:
         return [True, tuple([Hint.Red] * 4)]
     else:
-        red : list = get_red_hints(guess, secret) # structure is a list of tuples
-        white : list = get_white_hints(guess, secret, red) # structure is a list of tuples
+        red : list = get_red_hints(guess, secret) 
+        white : list = get_white_hints(guess, secret, red) 
         feedback : list[Hint] = join_hints(red, white)
         final_feedback : Feedback = sort_hints(feedback) 
         return [False, final_feedback]
