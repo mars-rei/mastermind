@@ -164,12 +164,11 @@ emptySecret : Secret = tuple[Code.Empty, Code.Empty, Code.Empty, Code.Empty]
 
 # ---------- Guess Type ----------
 Guess: TypeAlias = tuple[Code, Code, Code, Code]
-emptyGuess : Guess = (Code.Empty, Code.Empty, Code.Empty, Code.Empty) # marsy changed to round brackets because the ones above don't print as expected
+emptyGuess : Guess = (Code.Empty, Code.Empty, Code.Empty, Code.Empty) 
 
 
 # ---------- Feedback Type ----------
 Feedback: TypeAlias = tuple[Hint, Hint, Hint, Hint]
-#emptyFeedback : Feedback = tuple[Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty]
 emptyFeedback : Feedback = (Hint.Empty, Hint.Empty, Hint.Empty, Hint.Empty) # TEMPORARY: for the purpose of testing update_board()
 
 
@@ -226,6 +225,27 @@ Enter an option (1-6):
 
 
 # ---------- Option Interface Visuals ----------
+def check_one_dupe(secret_code: Secret, index_position: int = 0, found_dupe: tuple[Secret] = ()) -> bool:
+    if index_position == 4 and found_dupe:
+        return False
+    else:
+        if secret_code.count(secret_code[index_position]) == 2 and not found_dupe:
+            return check_one_dupe(secret_code, index_position+1, (secret_code[index_position], ) + found_dupe)
+        elif secret_code.count(secret_code[index_position]) == 2 and found_dupe:
+            return True
+
+def check_triple(secret_code: Secret, index_position: int = 0) -> bool:
+    if index_position == 4:
+        return False
+    else:
+        if secret_code.count(secret_code[index_position]) <= 2:
+            return check_triple(secret_code, index_position+1)
+        elif secret_code.count(secret_code[index_position]) >= 3:
+            return True
+        else:
+            return False
+        
+
 
 def receive_main_menu_input() -> None: # TODO
 
@@ -239,13 +259,29 @@ def receive_main_menu_input() -> None: # TODO
     selected_option = Main_Menu_Option.parse_main_menu_option(input("> "))
     print()
 
+    player1: Player = CodeBreaker()
+
     match selected_option:
         case Main_Menu_Option.Single_Player:
             # TODO - Document/Create start_single_player Function
-            start_gameplay(selected_option, empty_normal_board, (CodeBreaker, CPU), normal_secret_code())
+            player2: Player = CPU()
+            start_gameplay(selected_option, empty_normal_board, (player1, player2), normal_secret_code())
         case Main_Menu_Option.Multiplayer:
             # TODO - Document/Create start_multiplayer Function
-            start_gameplay(selected_option, empty_normal_board, (CodeBreaker, CPU), normal_secret_code()) # testing purposes, will remove on (19/05/2025)
+            player2: Player = CPU()
+            while True:
+                print("CODEMAKER: ENTER SECRET CODE -------------------- ")
+                custom_secret_code: Secret = make_secret_code()
+                triple_flag: bool = check_triple(custom_secret_code)
+                if triple_flag == True:
+                    print("\nINVALID MESSAGE INPUT !!!!! --------------------\nCannot have Three selections of the same Code Peg in the Secret Code")
+                else:
+                    one_dupe_only_flag = check_one_dupe(custom_secret_code)
+                    if one_dupe_only_flag == True:
+                        print("\nINVALID MESSAGE INPUT !!!!! --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
+                    else:
+                        break
+            start_gameplay(selected_option, empty_normal_board, (player1, player2), custom_secret_code)
         case Main_Menu_Option.Campaign:
             # TODO - Document/Create start_campaign Function
             print("Starting campaign mode...")
@@ -304,7 +340,6 @@ def receive_code_peg_input() -> Code:
             print("Invalid peg choice.")
 
 
-
 def receive_confirmation_input() -> Confirmation_Option: # TO DO
 
     '''
@@ -330,8 +365,13 @@ def normal_secret_code() -> Secret:
     return newSecretCode
 
 
-def make_secret_code() -> Secret: # TODO
-    pass
+def make_secret_code(secret_size=1) -> Secret: # TODO
+    print()
+    print(f"---------- CODE PEG CHOICE NO.#{secret_size} ----------")
+    if secret_size == 4:
+        return (receive_code_peg_input(),)
+    else:
+        return (receive_code_peg_input(),) + get_guess(secret_size+1)
 
 
 def hard_secret_code() -> Secret: 
@@ -366,15 +406,15 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Un
 
 # TODO: angelo :3 - IN-PROGRESS function
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> Union[None, bool]:
-    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:
-        print(f"""
-                                         _______________
-----------------------------------------| {game_mode.name.upper()} |----------------------------------------
-----------------------------------------|   GAME MODE   |----------------------------------------
-----------------------------------------|_______________|----------------------------------------
-        """)
+    print(f"""
+                                            _______________
+    ----------------------------------------| {game_mode.name.upper()} |----------------------------------------
+    ----------------------------------------|   GAME MODE   |----------------------------------------
+    ----------------------------------------|_______________|----------------------------------------
+            """)
+    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:    
         game_session: bool = play_game(game_board, players, secret_code)
-        announce_winner(game_session, players)
+        end_game(game_session, players, secret_code)
     if game_mode == Main_Menu_Option.Campaign:
         pass
 
@@ -382,8 +422,7 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
 
 
 def get_guess(guess_size: int = 1) -> Guess:
-    print() # just for formatting - need to figure out
-    print(f"---------- CODE PEG CHOICE NO.#{guess_size} ----------")
+    print(f"\n---------- CODE PEG CHOICE NO.#{guess_size} ----------")
     if guess_size == 4:
         return (receive_code_peg_input(),)
     else:
@@ -395,9 +434,7 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
         return [True, tuple([Hint.Red] * 4)]
     else:
         red : list = get_red_hints(guess, secret) # structure is a list of tuples
-        #print('red hint pegs:', red)
         white : list = get_white_hints(guess, secret, red) # structure is a list of tuples
-        #print('white hint pegs:', white)
         feedback : list[Hint] = join_hints(red, white)
         final_feedback : Feedback = sort_hints(feedback) 
         return [False, final_feedback]
@@ -468,26 +505,41 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
     return feedback
            
 
-def display_board(game_board: Board) -> None: # TODO - marsy started this off - currently imperative
-    print("\nDISPLAYING BOARD ---------------------------")
-    print()
-    print(" GUESS                                 FEEDBACK")
-    print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
-    for row in game_board:
-        print("|        |        |        |        | |        |        |        |        |")
-        for section in row:
-            for peg in section:
-                print("| ", end="")
-                spaces = ""
-                if len(str(peg)) != 6:
-                    spaces = " " * (6-len(str(peg)))
-                print(peg, end="")
-                print(spaces, end=" ")
-            print("| ", end="")
-        print()
-        print("|        |        |        |        | |        |        |        |        |")
-        print(" -------- -------- -------- --------   -------- -------- -------- -------- ")
+def display_board(game_board: Board) -> None:
 
+    def format_row(row: Row) -> list[str]:
+        header : list[str] = ["|        |        |        |        | |        |        |        |        |"]
+
+        guess: Guess = row[0]
+        feedback: Feedback = row[1]
+
+        row_pegs: list[str] = [format_peg(peg) for peg in guess] + ["| "] + [format_peg(peg) for peg in feedback] + ["|"]
+
+        footer : list[str] = ["|        |        |        |        | |        |        |        |        |",
+                        " -------- -------- -------- --------   -------- -------- -------- -------- "]
+
+        return "\n".join(header) + "\n" + "".join(row_pegs) + "\n" + "\n".join(footer)
+
+
+    def format_peg(peg: Union[Code, Hint]) -> str:
+        match len(str(peg)):
+            case 6:
+                return f"| {str(peg)} "
+            case _:
+                padding: str = " " * (6-len(str(peg)))
+                return f"| {str(peg)}{padding} "
+            
+
+    header : list[str] = [
+        "DISPLAYING BOARD ---------------------------",
+        "",
+        " GUESS                                 FEEDBACK",
+        " -------- -------- -------- --------   -------- -------- -------- -------- "
+        ]
+
+    board : list[str] = [format_row(row) for row in game_board]
+
+    print("\n".join(header + board))
 
 
 def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
@@ -507,19 +559,29 @@ def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, tu
             return game_board[0:5] + (new_row, )
 
 
-def announce_winner(game_finished: bool, players: tuple) -> None:
+def end_game(game_finished: bool, players: tuple, secret: Secret) -> None:
+    print("\n---------- SECRET CODE ----------")
+    print(*(str(peg) for peg in secret))
+
     print("\n---------- FINAL RESULTS ----------")
     match game_finished:
         case True:
-            print(f"\n{players[0]} has won the game!")
+            print(f"\n{str(players[0])} has won the game!")
         case False:
-            print(f"\n{players[1]} has won the game!")
+            print(f"\n{str(players[1])} has won the game!")
 
 
 # ---------- Program Start Flow ----------
 if __name__=="__main__":
     print(mastermind_intro) 
 
+    # mimi's testing for end_game
+    """
+    secret : Secret = normal_secret_code()
+    code_maker = CodeMaker()
+    cpu = CPU()
+    end_game(False, (code_maker, cpu), secret)
+    """
 
     while True:
         receive_main_menu_input()
