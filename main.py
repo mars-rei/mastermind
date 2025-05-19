@@ -73,11 +73,12 @@ class Confirmation_Option(Enum): # maybe just use discriminated unions instead a
         '''
 
         try:
-            confirmation_option: Confirmation_Option = Confirmation_Option(input).lower()
+            lower_confirmation_input: str = input.lower().strip()
+            confirmation_option: Confirmation_Option = Confirmation_Option(input)
             return confirmation_option
         except ValueError:
             print("That is an invalid confirmation choice.")
-
+    
 Confirm: TypeAlias = Confirmation_Option
 
 
@@ -270,24 +271,26 @@ def receive_main_menu_input() -> None: # TODO
             # TODO - Document/Create start_multiplayer Function
             player2: Player = CPU()
             while True:
-                print("CODEMAKER: ENTER SECRET CODE -------------------- ")
+                print("\nCODEMAKER: ENTER SECRET CODE -------------------- ")
                 custom_secret_code: Secret = make_secret_code()
-                triple_flag: bool = check_triple(custom_secret_code)
-                if triple_flag == True:
-                    print("\nINVALID MESSAGE INPUT !!!!! --------------------\nCannot have Three selections of the same Code Peg in the Secret Code")
-                else:
-                    one_dupe_only_flag = check_one_dupe(custom_secret_code)
-                    if one_dupe_only_flag == True:
-                        print("\nINVALID MESSAGE INPUT !!!!! --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
+                confirmation_choice: bool = receive_confirmation_input(custom_secret_code)
+                if confirmation_choice == True:
+                    triple_flag: bool = check_triple(custom_secret_code)
+                    if triple_flag == True:
+                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Three Choices of the same Code Peg in the Secret Code") #"You can't have more than two of the same Code peg in the Secret code"
                     else:
-                        break
+                        one_dupe_only_flag = check_one_dupe(custom_secret_code)
+                        if one_dupe_only_flag == True:
+                            print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
+                        else:
+                            break
             start_gameplay(selected_option, empty_normal_board, (player1, player2), custom_secret_code)
         case Main_Menu_Option.Campaign:
             # TODO - Document/Create start_campaign Function
             print("Starting campaign mode...")
         case Main_Menu_Option.Exit:
             print("Exiting Mastermind...")
-            exit()
+            sys.exit()
 
 
 # marsy's suggestion to new program flow
@@ -340,7 +343,7 @@ def receive_code_peg_input() -> Code:
             print("Invalid peg choice.")
 
 
-def receive_confirmation_input() -> Confirmation_Option: # TO DO
+def receive_confirmation_input(tupleInput: Union[Guess, Secret]) -> Confirmation_Option: # TO DO
 
     '''
         receive_confirmation_input is a function
@@ -348,15 +351,20 @@ def receive_confirmation_input() -> Confirmation_Option: # TO DO
             based on this, ...?
     '''
 
-    print("Are you sure you want to continue?") # will probably change later on
-    selected_option = Confirmation_Option.parse_confirmation_option(input("> "))
-    print()
+    while True:
+        print("\nYour Guess: ")
+        print(*(str(peg) for peg in tupleInput))
+        print("Are you sure you want to continue?") # will probably change later on
+        selected_option = Confirmation_Option.parse_confirmation_option(input("> "))
+        print()
 
-    match selected_option:
-        case Confirmation_Option.Yes:
-            print("????")
-        case Confirmation_Option.No:
-            print("????")
+        match selected_option:
+            case Confirmation_Option.Yes:
+                print("\nGuess Confirmed.")
+                return True
+            case Confirmation_Option.No:
+                print("\nGuess Cancelled.")
+                return False
   
 
 def normal_secret_code() -> Secret: 
@@ -386,12 +394,15 @@ def hard_secret_code() -> Secret:
 
 # IN-PROGRESS function
 def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int) -> tuple[Board, bool]:    
-    display_board(game_board)
-    new_guess: Guess = get_guess()
-    new_feedback: Feedback = get_feedback(new_guess, secret_code)
-    updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
-    display_board(updated_board)
-    return (updated_board, new_feedback[0])
+    while True:
+        display_board(game_board)
+        new_guess: Guess = get_guess()
+        new_feedback: Feedback = get_feedback(new_guess, secret_code)
+        confirmation_choice: Confirmation_Option = receive_confirmation_input(new_guess)
+        if confirmation_choice == True:
+            updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
+            display_board(updated_board)
+            return (updated_board, new_feedback[0])
 
 
 # IN-PROGRESS function
@@ -575,117 +586,7 @@ def end_game(game_finished: bool, players: tuple, secret: Secret) -> None:
 if __name__=="__main__":
     print(mastermind_intro) 
 
-    # mimi's testing for end_game
-    """
-    secret : Secret = normal_secret_code()
-    code_maker = CodeMaker()
-    cpu = CPU()
-    end_game(False, (code_maker, cpu), secret)
-    """
-
     while True:
         receive_main_menu_input()
 
-    # Gelo's TEST CODE (for update_board)
-    """
-    sample_secret_code: Secret = normal_secret_code()
-    sample_board: Board = empty_normal_board
-    sample_guess: Guess = get_guess()
-    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board: Board = update_board(sample_board, sample_guess, sample_feedback[1], 1) # note to gelo : you forgot to separate the feedback (tuple of boolean and feedback)
-    print("\n\n-------------------- MINI TEST RESULT (for update_board function) --------------------")
-    print(f"\nReturned Board Value TYPE:{type(updated_board)}")
-    print(f"\n---------- Current Board ----------")
-    print(f"\nRow 1 Guess:{updated_board[0]}\nRow 1 Feedback:{updated_board[0]}")
-    print(f"\nRow 2 Guess:{updated_board[1]}\nRow 2 Feedback:{updated_board[1]}")
-    print(f"\nRow 3 Guess:{updated_board[2]}\nRow 3 Feedback:{updated_board[2]}")
-    print(f"\nRow 4 Guess:{updated_board[3]}\nRow 4 Feedback:{updated_board[3]}")
-    print(f"\nRow 5 Guess:{updated_board[4]}\nRow 5 Feedback:{updated_board[4]}")
-    print(f"\nRow 6 Guess:{updated_board[5]}\nRow 6 Feedback:{updated_board[5]}")
-
-    # mimi's test code (for display_board) - you can see the update board in board format now :))
-    display_board(updated_board)
-
-
-    sample_guess: Guess = get_guess()
-    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board2: Board = update_board(updated_board, sample_guess, sample_feedback[1], 2)
-    print(f"\nReturned Board Value TYPE:{type(updated_board2)}")
-    print(f"\n---------- Current Board ----------")
-    print(len(updated_board2))
-    print(f"\nRow 1 Guess:{updated_board2[0][0]}\nRow 1 Feedback:{updated_board2[0][1]}")
-    print(f"\nRow 2 Guess:{updated_board2[1][0]}\nRow 2 Feedback:{updated_board2[1][1]}")
-    print(f"\nRow 3 Guess:{updated_board2[2][0]}\nRow 3 Feedback:{updated_board2[2][1]}")
-    print(f"\nRow 4 Guess:{updated_board2[3][0]}\nRow 4 Feedback:{updated_board2[3][1]}")
-    print(f"\nRow 5 Guess:{updated_board2[4][0]}\nRow 5 Feedback:{updated_board2[4][1]}")
-    print(f"\nRow 6 Guess:{updated_board2[5][0]}\nRow 6 Feedback:{updated_board2[5][1]}")
-
-    display_board(updated_board2)
-
-
-
-    sample_guess: Guess = get_guess()
-    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board3: Board = update_board(updated_board2, sample_guess, sample_feedback[1], 3)
-    print(f"\nReturned Board Value TYPE:{type(updated_board3)}")
-    print(f"\n---------- Current Board ----------")
-    print(len(updated_board3))
-    print(f"\nRow 1 Guess:{updated_board3[0][0]}\nRow 1 Feedback:{updated_board3[0][1]}")
-    print(f"\nRow 2 Guess:{updated_board3[1][0]}\nRow 2 Feedback:{updated_board3[1][1]}")
-    print(f"\nRow 3 Guess:{updated_board3[2][0]}\nRow 3 Feedback:{updated_board3[2][1]}")
-    print(f"\nRow 4 Guess:{updated_board3[3][0]}\nRow 4 Feedback:{updated_board3[3][1]}")
-    print(f"\nRow 5 Guess:{updated_board3[4][0]}\nRow 5 Feedback:{updated_board3[4][1]}")
-    print(f"\nRow 6 Guess:{updated_board3[5][0]}\nRow 6 Feedback:{updated_board3[5][1]}")
-
-    display_board(updated_board3)
-
-
-    sample_guess: Guess = get_guess()
-    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board4: Board = update_board(updated_board3, sample_guess, sample_feedback[1], 4)
-    print(f"\nReturned Board Value TYPE:{type(updated_board4)}")
-    print(f"\n---------- Current Board ----------")
-    print(len(updated_board4))
-    print(f"\nRow 1 Guess:{updated_board4[0][0]}\nRow 1 Feedback:{updated_board4[0][1]}")
-    print(f"\nRow 2 Guess:{updated_board4[1][0]}\nRow 2 Feedback:{updated_board4[1][1]}")
-    print(f"\nRow 3 Guess:{updated_board4[2][0]}\nRow 3 Feedback:{updated_board4[2][1]}")
-    print(f"\nRow 4 Guess:{updated_board4[3][0]}\nRow 4 Feedback:{updated_board4[3][1]}")
-    print(f"\nRow 5 Guess:{updated_board4[4][0]}\nRow 5 Feedback:{updated_board4[4][1]}")
-    print(f"\nRow 6 Guess:{updated_board4[5][0]}\nRow 6 Feedback:{updated_board4[5][1]}")
-
-    display_board(updated_board4)
     
-
-
-    sample_guess: Guess = get_guess()
-    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board5: Board = update_board(updated_board4, sample_guess, sample_feedback[1], 5)
-    print(f"\nReturned Board Value TYPE:{type(updated_board5)}")
-    print(f"\n---------- Current Board ----------")
-    print(len(updated_board5))
-    print(f"\nRow 1 Guess:{updated_board5[0][0]}\nRow 1 Feedback:{updated_board5[0][1]}")
-    print(f"\nRow 2 Guess:{updated_board5[1][0]}\nRow 2 Feedback:{updated_board5[1][1]}")
-    print(f"\nRow 3 Guess:{updated_board5[2][0]}\nRow 3 Feedback:{updated_board5[2][1]}")
-    print(f"\nRow 4 Guess:{updated_board5[3][0]}\nRow 4 Feedback:{updated_board5[3][1]}")
-    print(f"\nRow 5 Guess:{updated_board5[4][0]}\nRow 5 Feedback:{updated_board5[4][1]}")
-    print(f"\nRow 6 Guess:{updated_board5[5][0]}\nRow 6 Feedback:{updated_board5[5][1]}")
-
-    display_board(updated_board5)
-
-
-
-    sample_guess: Guess = get_guess()
-    sample_feedback: Feedback = get_feedback(sample_guess, sample_secret_code)
-    updated_board6: Board = update_board(updated_board5, sample_guess, sample_feedback[1], 6)
-    print(f"\nReturned Board Value TYPE:{type(updated_board6)}")
-    print(f"\n---------- Current Board ----------")
-    print(len(updated_board6))
-    print(f"\nRow 1 Guess:{updated_board6[0][0]}\nRow 1 Feedback:{updated_board5[0][1]}")
-    print(f"\nRow 2 Guess:{updated_board6[1][0]}\nRow 2 Feedback:{updated_board5[1][1]}")
-    print(f"\nRow 3 Guess:{updated_board6[2][0]}\nRow 3 Feedback:{updated_board5[2][1]}")
-    print(f"\nRow 4 Guess:{updated_board6[3][0]}\nRow 4 Feedback:{updated_board5[3][1]}")
-    print(f"\nRow 5 Guess:{updated_board6[4][0]}\nRow 5 Feedback:{updated_board5[4][1]}")
-    print(f"\nRow 6 Guess:{updated_board6[5][0]}\nRow 6 Feedback:{updated_board6[5][1]}")
-
-    display_board(updated_board6)
-    """
