@@ -39,7 +39,7 @@ class Main_Menu_Option(Enum):
             input (str) - An input string to try to parse into a Main_Menu_Option
 
         Returns:
-            Main_Menu_Option The parsed input
+            Main_Menu_Option - The parsed input
         """
 
         try:
