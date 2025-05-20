@@ -20,7 +20,7 @@ Authors:
 
 
 # ---------- Main Menu Option Type ----------
-
+@dataclass(eq=True, frozen=True)
 class Main_Menu_Option(Enum):
     Single_Player = 1
     Multiplayer = 2
@@ -35,11 +35,11 @@ class Main_Menu_Option(Enum):
             which parses an input string to a Main_Menu_Option value
 
         Parameters:
-            cls (Type[Main_Menu_Option]) : The Main_Menu_Option to parse
-            input (str) : An input string to try to parse into a Main_Menu_Option
+            cls (Type[Main_Menu_Option]) - The Main_Menu_Option to parse
+            input (str) - An input string to try to parse into a Main_Menu_Option
 
         Returns:
-            Type[Main_Menu_Option] The parsed input
+            Main_Menu_Option The parsed input
         """
 
         try:
@@ -52,8 +52,8 @@ Menu: TypeAlias = Main_Menu_Option
 
 
 # ---------- Confirmation Option Type ----------
-
-class Confirmation_Option(Enum): # maybe just use discriminated unions instead and have different options for yes and no?
+@dataclass(eq=True, frozen=True)
+class Confirmation_Option(Enum): 
     Yes = 'y'
     No = 'n'
  
@@ -65,15 +65,15 @@ class Confirmation_Option(Enum): # maybe just use discriminated unions instead a
             which parses an input string to a Confirmation_Option value
 
         Parameters:
-            cls (Type[Confirmation_Option]) : The Confirmation_Option to parse
-            input (str) : An input string to parse into a Confirmation_Option
+            cls (Type[Confirmation_Option]) - The Confirmation_Option to parse
+            input (str) - An input string to parse into a Confirmation_Option
 
         Returns:
-            Type[Confirmation_Option] The parsed input
+            Confirmation_Option - The parsed input
         """
 
         try:
-            lower_confirmation_input: str = input.lower().strip()
+            lower_confirmation_input: str = input.lower().strip() # chained pipelining
             confirmation_option: Confirmation_Option = Confirmation_Option(lower_confirmation_input)
             return confirmation_option
         except ValueError:
@@ -83,7 +83,7 @@ Confirm: TypeAlias = Confirmation_Option
 
 
 # ---------- Code Peg Option Type ----------
-
+@dataclass(eq=True, frozen=True)
 class Code_Peg_Option(Enum):
     Empty = 0
     Orange = 1
@@ -101,11 +101,11 @@ class Code_Peg_Option(Enum):
             which parses an input string to a Code_Peg_Option value
 
         Parameters:
-            cls (Type[Code_Peg_Option]) : The Code_Peg_Option to parse
-            input (str) : An input string to parse into a Code_Peg_Option
+            cls (Type[Code_Peg_Option]) - The Code_Peg_Option to parse
+            input (str) - An input string to parse into a Code_Peg_Option
 
         Returns:
-            Type[Code_Peg_Option] The parsed input
+            Code_Peg_Option - The parsed input
         """
 
         try:
@@ -120,7 +120,7 @@ class Code_Peg_Option(Enum):
         Code_Peg_Option.__str__ returns the lowercase string representation of the Code_Peg_Option
 
         Returns:
-            str The lowercase representation of the Code_Peg_Option
+            str - The lowercase representation of the Code_Peg_Option
         """
         return self.name.lower()  
 
@@ -140,7 +140,7 @@ class Hint_Peg(Enum):
         Hint_Peg.__str__ returns the lowercase string representation of the Hint_Peg
 
         Returns:
-            str: The lowercase representation of the Hint_Peg
+            str - The lowercase representation of the Hint_Peg
         """
         return self.name.lower()
 
@@ -156,7 +156,7 @@ class CodeMaker:
         CodeMaker.__str__ returns the string representation of CodeMaker
 
         Returns:
-            str: The string representation of the CodeMaker
+            str - The string representation of the CodeMaker
         """
         return "Code Maker"
 
@@ -167,7 +167,7 @@ class CodeBreaker:
         CodeBreaker.__str__ returns the string representation of CodeBreaker
 
         Returns:
-            str: The string representation of the CodeBreaker
+            str - The string representation of the CodeBreaker
         """
         return "Code Breaker"
 
@@ -178,7 +178,7 @@ class CPU:
         CPU.__str__ returns the string representation of CPU
 
         Returns:
-            str: The string representation of the CPU
+            str - The string representation of the CPU
         """
         return "CPU"
 
@@ -211,8 +211,8 @@ Normal_Board: TypeAlias = tuple[Row, Row, Row, Row, Row, Row]
 Hard_Board: TypeAlias = tuple[Row, Row, Row, Row] 
 Board: TypeAlias = Normal_Board | Hard_Board
 
-empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) # TEMPORARY: for the purpose of testing update_board()
-empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) # TEMPORARY: for the purpose of testing update_board()
+empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) 
+empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) 
 
 
 # ---------- Interface Visuals ----------
@@ -304,7 +304,6 @@ def check_two_dupe_secret(secret_code: Secret, index_position: int = 0) -> bool:
             return check_two_dupe_secret(secret_code, index_position+1)
         elif secret_code.count(secret_code[index_position]) >= 3:
             return True
-        
 
 
 def receive_main_menu_input() -> None: # TODO
@@ -333,7 +332,7 @@ def receive_main_menu_input() -> None: # TODO
                 confirmation_choice: bool = receive_confirmation_input(custom_secret_code)
                 if confirmation_choice == True:
                     if check_two_dupe_secret(custom_secret_code) == True:
-                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have more than two of the same Code Peg in the Secret Code") #"You can't have more than two of the same Code peg in the Secret code"
+                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have more than two of the same Code Peg in the Secret Code")
                     else:
                         if check_one_dupe_pair_secret(custom_secret_code) == True:
                             print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
@@ -357,7 +356,7 @@ def receive_code_peg_input() -> Code:
         the command-line
 
     Returns:
-        Code The User's selected option
+        Code - The Player's selected option
     """
 
     while True:
@@ -410,7 +409,7 @@ def normal_secret_code() -> Secret:
     normal_secret_code generates a normal Secret code to be guessed by the CodeBreaker
 
     Returns:
-        Secret A Secret code made up of 4 unique Code pegs
+        Secret - A Secret code made up of 4 unique Code pegs
         
     """
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
@@ -445,7 +444,7 @@ def hard_secret_code() -> Secret:
     hard_secret_code generates a hard Secret code to be guessed by the CodeBreaker
 
     Returns:
-        Secret A Secret code made up of 2 unique Code pegs and a pair of duplicate Code pegs
+        Secret - A Secret code made up of 2 unique Code pegs and a pair of duplicate Code pegs
         
     """
     valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
@@ -455,7 +454,7 @@ def hard_secret_code() -> Secret:
     return newSecretCode 
 
 
-# gelo is working on start_gameplay ------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # IN-PROGRESS function
 def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
@@ -500,7 +499,7 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Se
         return play_game(round[0], players, secret_code, turn_count+1, round[1])
 
 
-# TODO: angelo :3 - IN-PROGRESS function
+# IN-PROGRESS function
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> Union[None, bool]:
     """
     Function description
@@ -522,7 +521,6 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
     if game_mode == Main_Menu_Option.Campaign:
         pass
         stage_one: bool = play_game()
-        # i'm editing on a separate file atm... will paste it when done :O
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -532,10 +530,10 @@ def get_guess(guess_size: int = 1) -> Guess:
     get_guess is a recursive function that retrieves the Guess from the CodeBreaker's input
 
     Parameters:
-        guess_size (int) An indicator as to whether the Guess is the correct length or not
+        guess_size (int) - An indicator as to whether the Guess is the correct length or not
 
     Returns:
-        Guess The CodeBreaker's Guess
+        Guess - The CodeBreaker's Guess
         
     """
     print(f"\n---------- CODE PEG CHOICE NO.#{guess_size} ----------")
@@ -551,11 +549,11 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
         creating Feedback and decides whether the Mastermind game has finished or not
 
     Parameters:
-        guess (Guess) The CodeBreaker's Guess
-        secret (Secret) The Secret code to Guess
+        guess (Guess) - The CodeBreaker's Guess
+        secret (Secret) - The Secret code to Guess
 
     Returns:
-        tuple[bool, Feedback] The Boolean value indicating whether the game has finished or not,
+        tuple[bool, Feedback] - The Boolean value indicating whether the game has finished or not,
         and the Feedback on the CodeBreaker's Guess
         
     """
@@ -569,18 +567,17 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
         return [False, final_feedback]
 
 
-# merges red and white pegs, with empty pegs filling in the spaces
 def join_hints(red_pegs : list, white_pegs : list) -> list[Hint]:
     """
     join_hints merges the list of Red Hint pegs and White Hint pegs in order to
         create Feedback
 
     Parameters:
-        red_pegs (list) The list indicating which Code pegs should be assigned Red Hint pegs
-        white_pegs (list) The list indicating which Code pegs should be assigned White Hint pegs
+        red_pegs (list) - The list indicating which Code pegs should be assigned Red Hint pegs
+        white_pegs (list) - The list indicating which Code pegs should be assigned White Hint pegs
 
     Returns:
-        list[Hint] The unsorted list of feedback
+        list[Hint] - The unsorted list of feedback
     
     """
     return list(map(lambda i: Hint.Red if red_pegs[i][0] else Hint.White if white_pegs[i][0] else Hint.Empty, range(4)))
@@ -592,10 +589,10 @@ def sort_hints(feedback: list[Hint]) -> Feedback:
         and White Hint pegs over Empty Hint pegs
 
     Parameters:
-        feedback (list[Hint]) The unsorted list of feedback
+        feedback (list[Hint]) - The unsorted list of feedback
 
     Returns:
-        Feedback The sorted Feedback
+        Feedback - The sorted Feedback
         
     """
     feedback_order = {Hint.Red: 0, Hint.White: 1, Hint.Empty: 2}
@@ -608,11 +605,11 @@ def get_red_hints(guess: Guess, secret: Secret) -> list:
         CodeBreaker's Guess
 
     Parameters:
-        guess (Guess) The CodeBreaker's Guess
-        secret (Secret) The Secret to guess
+        guess (Guess) - The CodeBreaker's Guess
+        secret (Secret) - The Secret to guess
 
     Returns:
-        list A list of tuples containing a Boolean and Code peg value to indicate whether
+        list - A list of tuples containing a Boolean and Code peg value to indicate whether
             a Red Hint peg or Empty Hint peg has been assigned to them
         
     """
@@ -625,12 +622,12 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
         CodeBreaker's Guess
 
     Parameters:
-        guess (Guess) The CodeBreaker's Guess
-        secret (Secret) The Secret to guess
-        red_pegs (list) The list of red pegs assigned
+        guess (Guess) - The CodeBreaker's Guess
+        secret (Secret) - The Secret to guess
+        red_pegs (list) - The list of red pegs assigned
 
     Returns:
-        list A list of tuples containing a Boolean and Code peg value to indicate whether
+        list - A list of tuples containing a Boolean and Code peg value to indicate whether
             a White Hint peg or Empty Hint peg has been assigned to them
         
     """
@@ -641,45 +638,43 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
             code or not
 
         Parameters:
-            peg (Code) The peg to check
-            secret (Secret) The Secret code
+            peg (Code) - The peg to check
+            secret (Secret) - The Secret code
 
         Returns:
-            bool Whether the peg is a duplicated peg or not
+            bool - Whether the peg is a duplicated peg or not
             
         """
         return secret.count(peg) == 2
     
 
-    # checks how many times peg has been matched (red)
     def check_guessed_correctly(peg : Code, red_pegs : list) -> int: 
         """
         check_guessed_correctly checks how many times a peg has been correctly matched
             (has been assigned a Red Hint peg already)
 
         Parameters:
-            peg (Code) The peg to check
-            red_pegs (list) The list of Red Hint peg indicators
+            peg (Code) - The peg to check
+            red_pegs (list) - The list of Red Hint peg indicators
 
         Returns:
-            int The number of times the peg has been assigned a Red Hint peg
+            int - The number of times the peg has been assigned a Red Hint peg
             
         """
         return red_pegs.count((True, peg))
     
 
-    # checks how many times peg has almost been matched (white)
     def check_almost_guessed(peg : Code, running_feedback : list) -> int:
         """
         check_almost_guessed checks how many times a peg has been almost matched
             (has been assigned a White Hint peg already)
 
         Parameters:
-            peg (Code) The peg to check
-            running_feedback (list) The current list of White Hint peg indicators
+            peg (Code) - The peg to check
+            running_feedback (list) - The current list of White Hint peg indicators
 
         Returns:
-            int The number of times the peg has been assigned a White Hint peg
+            int - The number of times the peg has been assigned a White Hint peg
             
         """
         return running_feedback.count((True, peg))
@@ -691,12 +686,12 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
             if it occurs only once in the Secret code
 
         Parameters:
-            peg (Code) The peg to check
-            red_pegs (list) The list of Red Hint peg indicators
-            running_feedback (list) The current list of White Hint peg indicators
+            peg (Code) - The peg to check
+            red_pegs (list) - The list of Red Hint peg indicators
+            running_feedback (list) - The current list of White Hint peg indicators
 
         Returns:
-            tuple[bool, Code] A boolean value indicating whether the peg can be assigned 
+            tuple[bool, Code] - A boolean value indicating whether the peg can be assigned 
                 a White Hint peg or not, and the Code peg
             
         """
@@ -709,9 +704,9 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
             if it is the duplicate peg in the Secret code
 
         Parameters:
-            peg (Code) The peg to check
-            red_pegs (list) The list of Red Hint peg indicators
-            running_feedback (list) The current list of White Hint peg indicators
+            peg (Code) - The peg to check
+            red_pegs (list) - The list of Red Hint peg indicators
+            running_feedback (list) - The current list of White Hint peg indicators
 
         Returns:
             tuple[bool, Code] A boolean value indicating whether the peg can be assigned 
@@ -726,11 +721,11 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
         check_through_guess is a recursive function that assigns White Hint pegs for feedback
 
         Parameters:
-            guess_left (tuple) The remaining CodeBreaker's guess to check
-            running_feedback (list) The current list of White Hint peg indicators
+            guess_left (tuple) - The remaining CodeBreaker's guess to check
+            running_feedback (list) - The current list of White Hint peg indicators
 
         Returns:
-            list A list of tuples containing a Boolean and Code peg value to indicate whether
+            list - A list of tuples containing a Boolean and Code peg value to indicate whether
                 a White Hint peg or Empty Hint peg has been assigned to them
                 
         """
@@ -763,10 +758,10 @@ def print_in_colour(peg: Union[Code, Hint]) -> str:
         so it can be printed in its corresponding colour
 
     Parameters:
-        peg (Union[Code, Hint]) The peg to print in colour
+        peg (Union[Code, Hint]) - The peg to print in colour
 
     Returns:
-        str The peg along with its colour to be printed
+        str - The peg along with its colour to be printed
         
     """
     match peg:
@@ -797,7 +792,7 @@ def display_board(game_board: Board) -> None:
     display_board prints out the current game board
 
     Parameters:
-        game_board (Board) The game board to display
+        game_board (Board) - The game board to display
 
     """
 
@@ -806,10 +801,10 @@ def display_board(game_board: Board) -> None:
         format_row formats the Row of a Board
 
         Parameters:
-            row (Row) The Row to format
+            row (Row) - The Row to format
 
         Returns:
-            list[str] The formatted row
+            list[str] - The formatted row
             
         """
         header : list[str] = ["|        |        |        |        | |        |        |        |        |"]
@@ -830,10 +825,10 @@ def display_board(game_board: Board) -> None:
         format_peg formats a Code peg or Hint peg of a Row
 
         Parameters:
-            peg (Union[Code, Hint]) The Code peg or Hint peg to format
+            peg (Union[Code, Hint]) - The Code peg or Hint peg to format
 
         Returns:
-            str The formatted peg
+            str - The formatted peg
             
         """
         match len(str(peg)):
@@ -886,11 +881,9 @@ def end_game(game_finished: bool, players: Players, secret: Secret) -> None:
     end_game reveals the Secret code and the winner of the Mastermind game
 
     Parameters:
-        game_finished (bool) Whether the game has ended or not
-        players (tuple) The pair of players playing the game
-        secret (Secret) The Secret code to reveal
-
-    Returns:
+        game_finished (bool) - Whether the game has ended or not
+        players (tuple) - The pair of players playing the game
+        secret (Secret) - The Secret code to reveal
         
     """
     print("\n---------- SECRET CODE ----------")
