@@ -252,43 +252,58 @@ Enter an option (1-6):
 
 
 # ---------- Option Interface Visuals ----------
-def check_one_dupe(secret_code: Secret, index_position: int = 0, found_dupe: tuple[Secret] = ()) -> bool:
+def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, found_dupe: tuple[Secret] = ()) -> bool:
     """
-    Function description
+    check_one_dupe_pair_secret is a function
+        that individually obtains the value from every index within
+        secret_code whilst the found_dupe does not contain the 1st instance of
+        a duplication pair.
+        Using this, we can update found_dupe with the Code Peg found as the 1st
+        instance of a duplication pair and return the appropriate bool
 
     Parameters:
+        secret_code (Secret) - The newly created Secret Code to be guessed
+        index_position (int) - Initially set to 0 but is overwritten by itself incremented by 1 for every recurse
+        found_dupe (tuple[Secret]) - Initially empty but will soon store the 1st instance of a duplicate pair
 
     Returns:
-        
+        bool - To signify whether more than one duplicate pair has been found
+
     """
     
     if index_position == 4 and found_dupe:
         return False
     else:
         if secret_code.count(secret_code[index_position]) == 2 and not found_dupe:
-            return check_one_dupe(secret_code, index_position+1, (secret_code[index_position], ) + found_dupe)
-        elif secret_code.count(secret_code[index_position]) == 2 and found_dupe:
+            return check_one_dupe_pair_secret(secret_code, index_position+1, (secret_code[index_position], ) + found_dupe)
+        elif secret_code.count(secret_code[index_position]) == 2 and secret_code[index_position] not in found_dupe:
             return True
 
-def check_triple(secret_code: Secret, index_position: int = 0) -> bool:
+def check_two_dupe_secret(secret_code: Secret, index_position: int = 0) -> bool:
     """
-    Function description
+    check_two_dupe_secret is a function
+        that individually obtains the value from every index within
+        secret_code and counts the amount of appearances within secret_code.
+        Using this, it decides whether or not to recurse or return the
+        appropriate bool.
+
 
     Parameters:
+        secret_code (Secret) - The newly created Secret Code to be guessed
+        index_position (int) - Initially set to 0 but is overwritten by itself incremented by 1 for every recurse
 
     Returns:
-        
+        bool - To signify whether any of the code pegs selected appear more than twice
+
     """
         
     if index_position == 4:
         return False
     else:
         if secret_code.count(secret_code[index_position]) <= 2:
-            return check_triple(secret_code, index_position+1)
+            return check_two_dupe_secret(secret_code, index_position+1)
         elif secret_code.count(secret_code[index_position]) >= 3:
             return True
-        else:
-            return False
         
 
 
@@ -308,23 +323,19 @@ def receive_main_menu_input() -> None: # TODO
 
     match selected_option:
         case Main_Menu_Option.Single_Player:
-            # TODO - Document/Create start_single_player Function
             player2: Player = CPU()
             start_gameplay(selected_option, empty_normal_board, (player1, player2), normal_secret_code())
         case Main_Menu_Option.Multiplayer:
-            # TODO - Document/Create start_multiplayer Function
-            player2: Player = CPU()
+            player2: Player = CodeMaker()
             while True:
                 print("\nCODEMAKER: ENTER SECRET CODE -------------------- ")
                 custom_secret_code: Secret = make_secret_code()
                 confirmation_choice: bool = receive_confirmation_input(custom_secret_code)
                 if confirmation_choice == True:
-                    triple_flag: bool = check_triple(custom_secret_code)
-                    if triple_flag == True:
-                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Three Choices of the same Code Peg in the Secret Code") #"You can't have more than two of the same Code peg in the Secret code"
+                    if check_two_dupe_secret(custom_secret_code) == True:
+                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have more than two of the same Code Peg in the Secret Code") #"You can't have more than two of the same Code peg in the Secret code"
                     else:
-                        one_dupe_only_flag = check_one_dupe(custom_secret_code)
-                        if one_dupe_only_flag == True:
+                        if check_one_dupe_pair_secret(custom_secret_code) == True:
                             print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
                         else:
                             break
@@ -407,14 +418,19 @@ def normal_secret_code() -> Secret:
     return newSecretCode
 
 
-def make_secret_code(secret_size=1) -> Secret: # TODO
+def make_secret_code(secret_size: int = 1) -> Secret: # TODO
     """
-    Function description
+    make_secret_code is a function
+        that prompts for each individual Code Peg input to return a Secret.
+        Until secret_size is of value 4, receive_code_peg_input will be called
+        without recurse to return a formulated Secret. 
 
     Parameters:
+        secret_size (int) - Initially value 1 and is overwritten byt itself incremented by 1 when recursed
 
     Returns:
-        
+        Secret - Tuple containing the selected four Code type values
+    
     """
     print()
     print(f"---------- CODE PEG CHOICE NO.#{secret_size} ----------")
@@ -442,28 +458,32 @@ def hard_secret_code() -> Secret:
 # gelo is working on start_gameplay ------------------------------------------------------------------------------------------------------------------------
 
 # IN-PROGRESS function
-def play_round(game_board: Board, secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int) -> tuple[Board, bool]:    
+def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
     """
-    Function description
+    play_round is a function
+        that executes a sequence of functions to carry out a singular
+        guess. This involves the prompt for the Guess, the Confirmation_Option,
+        the Feedback generated, and updating the Board.
 
     Parameters:
-
+        game_board (Board) - To be manipulated to create a new updated version for a Board value
+        secret_code (Secret or Tuple(Secret, Secret, Secret)) - 
+        (note to self: MAG FINISH KA DITO BEFORE FINISHING CAMPAIGN)
     Returns:
         
     """
     while True:
         display_board(game_board)
         new_guess: Guess = get_guess()
-        new_feedback: Feedback = get_feedback(new_guess, secret_code)
         confirmation_choice: Confirmation_Option = receive_confirmation_input(new_guess)
         if confirmation_choice == True:
+            new_feedback: Feedback = get_feedback(new_guess, secret_code)
             updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
-            display_board(updated_board)
             return (updated_board, new_feedback[0])
 
 
 # IN-PROGRESS function
-def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], turn_count: int = 1, game_finished = False) -> bool:
+def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished = False) -> bool:
     """
     Function description
 
