@@ -20,7 +20,6 @@ Authors:
 
 
 # ---------- Main Menu Option Type ----------
-@dataclass(eq=True, frozen=True)
 class Main_Menu_Option(Enum):
     Single_Player = 1
     Multiplayer = 2
@@ -52,7 +51,6 @@ Menu: TypeAlias = Main_Menu_Option
 
 
 # ---------- Confirmation Option Type ----------
-@dataclass(eq=True, frozen=True)
 class Confirmation_Option(Enum): 
     Yes = 'y'
     No = 'n'
@@ -83,7 +81,6 @@ Confirm: TypeAlias = Confirmation_Option
 
 
 # ---------- Code Peg Option Type ----------
-@dataclass(eq=True, frozen=True)
 class Code_Peg_Option(Enum):
     Empty = 0
     Orange = 1
@@ -128,8 +125,6 @@ Code: TypeAlias = Code_Peg_Option
 
 
 # ---------- Hint Peg Type ----------
-
-@dataclass(eq=True, frozen=True)
 class Hint_Peg(Enum):
     Empty = 0
     White = 1
@@ -148,7 +143,6 @@ Hint: TypeAlias = Hint_Peg
 
 
 # ---------- Player Types ----------
-
 @dataclass(eq=True, frozen=True)
 class CodeMaker:
     def __str__(self) -> str:
@@ -313,19 +307,15 @@ def receive_main_menu_input() -> None: # TODO
         which receives the user's parsed Main_Menu_Option and 
         based on this, calls the appropriate main menu option function
     """
-    
+
     print(main_menu_options)
     selected_option = Main_Menu_Option.parse_main_menu_option(input("> "))
     print()
 
-    player1: Player = CodeBreaker()
-
     match selected_option:
         case Main_Menu_Option.Single_Player:
-            player2: Player = CPU()
-            start_gameplay(selected_option, empty_normal_board, (player1, player2), normal_secret_code())
+            start_gameplay(selected_option, empty_normal_board, (CodeBreaker(), CPU()), normal_secret_code())
         case Main_Menu_Option.Multiplayer:
-            player2: Player = CodeMaker()
             while True:
                 print("\nCODEMAKER: ENTER SECRET CODE -------------------- ")
                 custom_secret_code: Secret = make_secret_code()
@@ -338,7 +328,7 @@ def receive_main_menu_input() -> None: # TODO
                             print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
                         else:
                             break
-            start_gameplay(selected_option, empty_normal_board, (player1, player2), custom_secret_code)
+            start_gameplay(selected_option, empty_normal_board, (CodeBreaker(), CodeMaker()), custom_secret_code)
         case Main_Menu_Option.Campaign:
             # TODO - Document/Create start_campaign Function
             print("Starting campaign mode...")
@@ -412,7 +402,7 @@ def normal_secret_code() -> Secret:
         Secret - A Secret code made up of 4 unique Code pegs
         
     """
-    valid_code_pegs: list[Code] = [peg for peg in Code if peg != Code(0)]
+    valid_code_pegs: list[Code] = [peg for peg in Code if str(peg) != "empty"]
     newSecretCode: Secret = tuple(random.sample(valid_code_pegs, k=4))
     return newSecretCode
 
@@ -478,11 +468,12 @@ def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple
         if confirmation_choice == True:
             new_feedback: Feedback = get_feedback(new_guess, secret_code)
             updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
+            display_board(updated_board)
             return (updated_board, new_feedback[0])
 
 
 # IN-PROGRESS function
-def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished = False) -> bool:
+def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished = False) -> tuple[bool, Board]:
     """
     Function description
 
@@ -492,7 +483,7 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Se
         
     """
     if turn_count == 7 or game_finished == True:
-        return game_finished
+        return (game_finished, game_board)
     else:
         print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
         round: tuple[Board, bool] = play_round(game_board, secret_code, turn_count)
@@ -516,8 +507,9 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
     ----------------------------------------|_______________|----------------------------------------
             """)
     if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:    
-        game_session: bool = play_game(game_board, players, secret_code)
-        end_game(game_session, players, secret_code)
+        game_session: tuple[bool, Board] = play_game(game_board, players, secret_code)
+        display_board(game_session[1])
+        end_game(game_session[0], players, secret_code)
     if game_mode == Main_Menu_Option.Campaign:
         pass
         stage_one: bool = play_game()
@@ -903,5 +895,3 @@ if __name__=="__main__":
 
     while True:
         receive_main_menu_input()
-
-    
