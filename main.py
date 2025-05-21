@@ -268,9 +268,9 @@ def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, fou
     if index_position == 4 and found_dupe:
         return False
     else:
-        if secret_code.count(secret_code[index_position]) == 2 and not found_dupe:
+        if secret_code.count(secret_code[index_position]) == 2 and secret_code[index_position] not in found_dupe:
             return check_one_dupe_pair_secret(secret_code, index_position+1, (secret_code[index_position], ) + found_dupe)
-        elif secret_code.count(secret_code[index_position]) == 2 and secret_code[index_position] not in found_dupe:
+        elif secret_code.count(secret_code[index_position]) == 2 and found_dupe:
             return True
 
 def check_two_dupe_secret(secret_code: Secret, index_position: int = 0) -> bool:
@@ -322,16 +322,16 @@ def receive_main_menu_input() -> None: # TODO
                 confirmation_choice: bool = receive_confirmation_input(custom_secret_code)
                 if confirmation_choice == True:
                     if check_two_dupe_secret(custom_secret_code) == True:
-                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have more than two of the same Code Peg in the Secret Code")
+                        print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have more than two of the same Code Peg in the Secret Code.")
                     else:
                         if check_one_dupe_pair_secret(custom_secret_code) == True:
-                            print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have Two instances of Duplicates in the Secret Code")
+                            print(f"\nINVALID MESSAGE INPUT --------------------\nYou can't have more than one pair of Duplicates in the Secret Code.")
                         else:
                             break
             start_gameplay(selected_option, empty_normal_board, (CodeBreaker(), CodeMaker()), custom_secret_code)
         case Main_Menu_Option.Campaign:
             # TODO - Document/Create start_campaign Function
-            print("Starting campaign mode...")
+            start_gameplay(selected_option, (normal_secret_code, hard_secret_code), (CodeBreaker(), CPU()), (normal_secret_code(), hard_secret_code(), hard_secret_code()))
         case Main_Menu_Option.Exit:
             print("Exiting Mastermind...")
             sys.exit()
@@ -456,10 +456,12 @@ def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple
 
     Parameters:
         game_board (Board) - To be manipulated to create a new updated version for a Board value
-        secret_code (Secret or Tuple(Secret, Secret, Secret)) - 
-        (note to self: MAG FINISH KA DITO BEFORE FINISHING CAMPAIGN)
+        secret_code (Secret) - To be passed into get_feedback() to be compared with new_guess
+        turn_count (int) - To be passed into update_board() to govern what Row of the Board is to be updated
+
     Returns:
-        
+        tuple[Board, bool] - Returns the newly updated_board alongside the finished status of the game as a bool
+
     """
     while True:
         display_board(game_board)
@@ -473,13 +475,24 @@ def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple
 
 
 # IN-PROGRESS function
-def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished = False) -> tuple[bool, Board]:
+def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished: bool = False) -> tuple[bool, Board]:
     """
-    Function description
+    play_game is a function
+        that regulates the amount of attempts that a singular
+        Mastermind Game Mode can be taken. While turn_count
+        or game_finished have not meant a certain criteria to
+        end the game session, play round is called to allow for
+        an attempt to be made and a recurse is made.
 
     Parameters:
+        game_board (Board) - To be passed into play_round()
+        players (tuple[Player, Player]) - To be passed into the play_game() recursive call
+        secret_code (Secret) - To be passed into play_round() and the play_game() recursive call
+        turn_count (int) - Initialised as 1 and passed into the play_game() recursive call incremented by 1
+        game_finished (bool) - Initialsied as False and governs the end of the game session.
 
     Returns:
+        tuple[bool, Board] - Returns the finished state of the game indicating the winner and the final state of the Board
         
     """
     if turn_count == 7 or game_finished == True:
@@ -490,14 +503,24 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Se
         return play_game(round[0], players, secret_code, turn_count+1, round[1])
 
 
-# IN-PROGRESS function
-def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> Union[None, bool]:
+# IN-PROGRESS function (GELO is thinking of putting recursion here for campaign exclusively)
+def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
     """
-    Function description
+    start_gameplay is a function
+        that displays the game mode chosen and decides on the flow
+        in which the a certain game mode should behave in.
+        Depending on which game mode is chosen will govern the
+        amount of play_game() calls will be made until the a final
+        end_game() call is made.
 
     Parameters:
+        game_mode (Main_Menu_Option) - Used to govern the which flow of the gameplay
+        game_board (Board) - To pass the appropriate Board into the first instance of a play_game() call
+        players (tuple[Player, Player]) - To pass the appropriate tuple of players into the first instance of a play_game() call
+        secret_code (Secret or tuple[Secret, Secret, Secret]) - To be passed, or individually passed if in a tuple, into the first instance of a play_game() call
 
     Returns:
+        None
         
     """
     print(f"""
@@ -512,7 +535,7 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
         end_game(game_session[0], players, secret_code)
     if game_mode == Main_Menu_Option.Campaign:
         pass
-        stage_one: bool = play_game()
+        stage_one: tuple[bool, Board] = play_game()
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -845,12 +868,19 @@ def display_board(game_board: Board) -> None:
 
 def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
     """
-    Function description
+    update_board is a function
+        that uses the existing game board and updates it appropriately
+        with a new Row containing the new_guess and new_feedback.
 
     Parameters:
+        game_board (Board) - To updated through tuple slicing along with new_row
+        new_guess (Guess) - Forms part of the Row tuple in new_row
+        new_feedback (Feedback) - Forms art fo the Row tuple in new_row
+        turn_count (int) - Governs the position within the new Board to which new_row is updated
 
     Returns:
-        
+        Board - An updated version of the Board is formed combining the existing Board and the new Row
+
     """
     new_row: Row = (new_guess, new_feedback)
     match turn_count:
