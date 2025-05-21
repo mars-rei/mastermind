@@ -480,13 +480,13 @@ def play_round(game_mode: Main_Menu_Option, game_board: Board, secret_code: Secr
         confirmation_choice: Confirmation_Option = receive_confirmation_input(new_guess)
         if confirmation_choice == True:
             new_feedback: Feedback = get_feedback(new_guess, secret_code)
-            updated_board: Board = update_board(game_mode, game_board, new_guess, new_feedback[1], turn_count)
+            updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
             display_board(updated_board)
             return (updated_board, new_feedback[0])
 
 
 # IN-PROGRESS function
-def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished: bool = False, current_stage: int = 0) -> tuple[bool, Board]:
+def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, current_stage: int = 0,game_finished: bool = False) -> tuple[bool, Board]:
     """
     play_game is a function
         that regulates the amount of attempts that a singular
@@ -506,24 +506,25 @@ def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Pla
         tuple[bool, Board] - Returns the finished state of the game indicating the winner and the final state of the Board
         
     """
-
-    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer or (game_mode == Main_Menu_Option.Campaign and (current_stage == 0 or current_stage == 1)):
+    print("Current Stage" + str(current_stage))
+    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer or (game_mode == Main_Menu_Option.Campaign and current_stage == 0 or current_stage == 1):
         if turn_count == 7 or game_finished == True:
             return (game_finished, game_board)
         else:
             print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
             round: tuple[Board, bool] = play_round(game_mode, game_board, secret_code, turn_count)
-            return play_game(game_mode, round[0], players, secret_code, turn_count+1, round[1], current_stage)
+            return play_game(game_mode, round[0], players, secret_code, turn_count+1, current_stage, round[1])
     elif game_mode == Main_Menu_Option.Campaign and current_stage == 2:
         if turn_count == 5 or game_finished == True:
             return (game_finished, game_board)
         else:
             print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
             round: tuple[Board, bool] = play_round(game_mode, game_board, secret_code, turn_count)
-            return play_game(game_mode, round[0], players, secret_code, turn_count+1, round[1], current_stage)
+            return play_game(game_mode, round[0], players, secret_code, turn_count+1, current_stage, round[1])
 
 
 # IN-PROGRESS function (GELO is putting recursive aspect for campaign)
+# to revise docstring - parameters
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Union[Board, tuple[Board, Board, Board]], players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], campaign_flag: bool = True, current_stage: int = 0) -> None:
     """
     start_gameplay is a function
@@ -549,18 +550,29 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Union[Board, tuple[B
     ----------------------------------------|   GAME MODE   |----------------------------------------
     ----------------------------------------|_______________|----------------------------------------
             """)
-    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:    
-        game_session: tuple[bool, Board] = play_game(game_mode, game_board, players, secret_code)
-        display_board(game_session[1])
-        end_game(game_mode, current_stage, game_session[0], players, secret_code)
-    elif game_mode == Main_Menu_Option.Campaign and campaign_flag == False:
-        end_game(game_mode, current_stage, campaign_flag, players, secret_code[current_stage])
-    elif game_mode == Main_Menu_Option.Campaign and campaign_flag == True:
+    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer: # when game_mode isn't Campaign
+        game_session: tuple[bool, Board] = play_game(game_mode, game_board, players, secret_code) # play game
+        display_board(game_session[1]) # final board display
+        end_game(game_mode, current_stage, game_session[0], players, secret_code) # end of game
+
+    elif game_mode == Main_Menu_Option.Campaign and campaign_flag == False: # when game mode is Campaign and CodeBreaker has lost
+        end_game(game_mode, current_stage, campaign_flag, players, secret_code[current_stage]) # end of game
+
+    elif game_mode == Main_Menu_Option.Campaign and campaign_flag == True: # when game mode is Campaign and CodeBreaker has not lost yet
         print(f"------------------------------------------------------------------ STAGE {current_stage+1} ------------------------------------------------------------------")
-        print(secret_code[current_stage])
-        game_stage: tuple[bool, Board] = play_game(game_mode, game_board[current_stage], players, secret_code[current_stage])
-        display_board(game_stage[1])
-        return start_gameplay(game_mode, game_board, players, secret_code, game_stage[0], current_stage)
+        print(secret_code[current_stage]) # gets Secret code for the related stage
+        game_stage: tuple[bool, Board] = play_game(game_mode, game_board[current_stage], players, secret_code[current_stage], 1, current_stage) # play game
+
+        if game_stage[0] == False:
+            display_board(game_stage[1])
+            end_game(game_mode, current_stage, game_stage[0], players, secret_code[current_stage])
+
+        else:
+            if current_stage == 2:
+                end_game(game_mode, current_stage, campaign_flag, players, secret_code[current_stage])
+            else:
+                end_game(game_mode, current_stage, game_stage[0], players, secret_code[current_stage])
+                return start_gameplay(game_mode, game_board, players, secret_code, game_stage[0], current_stage+1)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -835,50 +847,6 @@ def display_board(game_board: Board) -> None:
         game_board (Board) - The game board to display
 
     """
-
-    def format_row(row: Row) -> list[str]:
-        """
-        format_row formats the Row of a Board
-
-        Parameters:
-            row (Row) - The Row to format
-
-        Returns:
-            list[str] - The formatted row
-            
-        """
-        header : list[str] = ["|        |        |        |        | |        |        |        |        |"]
-
-        guess: Guess = row[0]
-        feedback: Feedback = row[1]
-
-        row_pegs: list[str] = [format_peg(peg) for peg in guess] + ["| "] + [format_peg(peg) for peg in feedback] + ["|"]
-
-        footer : list[str] = ["|        |        |        |        | |        |        |        |        |",
-                        " -------- -------- -------- --------   -------- -------- -------- -------- "]
-
-        return "\n".join(header) + "\n" + "".join(row_pegs) + "\n" + "\n".join(footer)
-
-
-    def format_peg(peg: Union[Code, Hint]) -> str:
-        """
-        format_peg formats a Code peg or Hint peg of a Row
-
-        Parameters:
-            peg (Union[Code, Hint]) - The Code peg or Hint peg to format
-
-        Returns:
-            str - The formatted peg
-            
-        """
-        match len(str(peg)):
-            case 6:
-                return f"| {print_in_colour(peg)} "
-            case _:
-                padding: str = " " * (6-len(str(peg)))
-                return f"| {print_in_colour(peg)}{padding} "
-            
-
     header : list[str] = [
         "DISPLAYING BOARD ---------------------------",
         "",
@@ -891,7 +859,50 @@ def display_board(game_board: Board) -> None:
     print("\n".join(header + board))
 
 
-def update_board(game_mode: Main_Menu_Option, game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
+def format_row(row: Row) -> list[str]:
+    """
+    format_row formats the Row of a Board
+
+    Parameters:
+        row (Row) - The Row to format
+
+    Returns:
+        list[str] - The formatted row
+        
+    """
+    header : list[str] = ["|        |        |        |        | |        |        |        |        |"]
+
+    guess: Guess = row[0]
+    feedback: Feedback = row[1]
+
+    row_pegs: list[str] = [format_peg(peg) for peg in guess] + ["| "] + [format_peg(peg) for peg in feedback] + ["|"]
+
+    footer : list[str] = ["|        |        |        |        | |        |        |        |        |",
+                    " -------- -------- -------- --------   -------- -------- -------- -------- "]
+
+    return "\n".join(header) + "\n" + "".join(row_pegs) + "\n" + "\n".join(footer)
+
+
+def format_peg(peg: Union[Code, Hint]) -> str:
+    """
+    format_peg formats a Code peg or Hint peg of a Row
+
+    Parameters:
+        peg (Union[Code, Hint]) - The Code peg or Hint peg to format
+
+    Returns:
+        str - The formatted peg
+        
+    """
+    match len(str(peg)):
+        case 6:
+            return f"| {print_in_colour(peg)} "
+        case _:
+            padding: str = " " * (6-len(str(peg)))
+            return f"| {print_in_colour(peg)}{padding} "
+
+
+def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
     """
     update_board is a function
         that uses the existing game board and updates it appropriately
@@ -954,8 +965,13 @@ def end_game(game_mode: Main_Menu_Option, current_stage: int, game_finished: boo
         case False:
             print(f"\n{str(players[1])} has won the game!")
 
-    if game_mode == Main_Menu_Option.Campaign and current_stage == 2:
+    # if game_mode is Campaign
+    print("game_finished:", game_finished)
+
+    if game_mode == Main_Menu_Option.Campaign and current_stage == 2 and game_finished == True:
         print("You have successfully completed your Campaign game!")
+    elif game_mode == Main_Menu_Option.Campaign and current_stage < 2 and game_finished == True:
+        print("Well done! You have advanced to the next stage in your Campaign game!")
     elif game_mode == Main_Menu_Option.Campaign and game_finished == False:
         print("You have failed your Campaign game!")
 
