@@ -206,7 +206,7 @@ Hard_Board: TypeAlias = tuple[Row, Row, Row, Row]
 Board: TypeAlias = Normal_Board | Hard_Board
 
 empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) 
-empty_normal_board: Normal_Board = (emptyRow, emptyRow, emptyRow, emptyRow, emptyRow, emptyRow) 
+empty_hard_board: Hard_Board = (emptyRow, emptyRow, emptyRow, emptyRow) 
 
 
 # ---------- Interface Visuals ----------
@@ -244,6 +244,15 @@ CODE PEG SELECTION ---------------------------
 Enter an option (1-6): 
 """
 
+confirmation_options : str = """
+CONFRIMATION SELECTION ---------------------------
+
+(y) Yes
+(n) No
+
+Enter a choice (y or n)
+"""
+
 
 # ---------- Option Interface Visuals ----------
 def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, found_dupe: tuple[Secret] = ()) -> bool:
@@ -268,8 +277,10 @@ def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, fou
     if index_position == 4 and found_dupe:
         return False
     else:
-        if secret_code.count(secret_code[index_position]) == 2 and secret_code[index_position] not in found_dupe:
+        if secret_code.count(secret_code[index_position]) == 2 and not found_dupe:
             return check_one_dupe_pair_secret(secret_code, index_position+1, (secret_code[index_position], ) + found_dupe)
+        elif secret_code.count(secret_code[index_position]) == 2 and secret_code[index_position] in found_dupe:
+            return check_one_dupe_pair_secret(secret_code, index_position+1, found_dupe)
         elif secret_code.count(secret_code[index_position]) == 2 and found_dupe:
             return True
 
@@ -330,8 +341,7 @@ def receive_main_menu_input() -> None: # TODO
                             break
             start_gameplay(selected_option, empty_normal_board, (CodeBreaker(), CodeMaker()), custom_secret_code)
         case Main_Menu_Option.Campaign:
-            # TODO - Document/Create start_campaign Function
-            start_gameplay(selected_option, (normal_secret_code, hard_secret_code), (CodeBreaker(), CPU()), (normal_secret_code(), hard_secret_code(), hard_secret_code()))
+            start_gameplay(selected_option, (empty_normal_board, empty_normal_board, empty_hard_board), (CodeBreaker(), CPU()), (normal_secret_code(), hard_secret_code(), hard_secret_code()))
         case Main_Menu_Option.Exit:
             print("Exiting Mastermind...")
             sys.exit()
@@ -379,7 +389,8 @@ def receive_confirmation_input(tupleInput: Union[Guess, Secret]) -> Confirmation
     """
 
     while True:
-        print("\nYour Guess: ") # would rather substitute Guess with Choice so it would make sense when used for makeSecretCode too
+        print(confirmation_options)
+        print("Your Guess: ")
         print(*(print_in_colour(peg) for peg in tupleInput))
         print("Are you sure you want to continue?") 
         selected_option = Confirmation_Option.parse_confirmation_option(input("> "))
@@ -387,10 +398,10 @@ def receive_confirmation_input(tupleInput: Union[Guess, Secret]) -> Confirmation
 
         match selected_option:
             case Confirmation_Option.Yes:
-                print("\nGuess Confirmed.") # would rather substitute Guess with Choice so it would make sense when used for makeSecretCode too
+                print("\nChoice Confirmed.")
                 return True
             case Confirmation_Option.No:
-                print("\nGuess Cancelled.") # would rather substitute Guess with Choice so it would make sense when used for makeSecretCode too
+                print("\nChoice Cancelled.")
                 return False
   
 
@@ -447,7 +458,7 @@ def hard_secret_code() -> Secret:
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # IN-PROGRESS function
-def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
+def play_round(game_mode: Main_Menu_Option, game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
     """
     play_round is a function
         that executes a sequence of functions to carry out a singular
@@ -469,13 +480,13 @@ def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple
         confirmation_choice: Confirmation_Option = receive_confirmation_input(new_guess)
         if confirmation_choice == True:
             new_feedback: Feedback = get_feedback(new_guess, secret_code)
-            updated_board: Board = update_board(game_board, new_guess, new_feedback[1], turn_count)
+            updated_board: Board = update_board(game_mode, game_board, new_guess, new_feedback[1], turn_count)
             display_board(updated_board)
             return (updated_board, new_feedback[0])
 
 
 # IN-PROGRESS function
-def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished: bool = False) -> tuple[bool, Board]:
+def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, game_finished: bool = False, current_stage: int = 0) -> tuple[bool, Board]:
     """
     play_game is a function
         that regulates the amount of attempts that a singular
@@ -495,16 +506,25 @@ def play_game(game_board: Board, players: tuple[Player, Player], secret_code: Se
         tuple[bool, Board] - Returns the finished state of the game indicating the winner and the final state of the Board
         
     """
-    if turn_count == 7 or game_finished == True:
-        return (game_finished, game_board)
-    else:
-        print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
-        round: tuple[Board, bool] = play_round(game_board, secret_code, turn_count)
-        return play_game(round[0], players, secret_code, turn_count+1, round[1])
+
+    if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer or (game_mode == Main_Menu_Option.Campaign and (current_stage == 0 or current_stage == 1)):
+        if turn_count == 7 or game_finished == True:
+            return (game_finished, game_board)
+        else:
+            print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
+            round: tuple[Board, bool] = play_round(game_mode, game_board, secret_code, turn_count)
+            return play_game(game_mode, round[0], players, secret_code, turn_count+1, round[1], current_stage)
+    elif game_mode == Main_Menu_Option.Campaign and current_stage == 2:
+        if turn_count == 5 or game_finished == True:
+            return (game_finished, game_board)
+        else:
+            print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
+            round: tuple[Board, bool] = play_round(game_mode, game_board, secret_code, turn_count)
+            return play_game(game_mode, round[0], players, secret_code, turn_count+1, round[1], current_stage)
 
 
-# IN-PROGRESS function (GELO is thinking of putting recursion here for campaign exclusively)
-def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]]) -> None:
+# IN-PROGRESS function (GELO is putting recursive aspect for campaign)
+def start_gameplay(game_mode: Main_Menu_Option, game_board: Union[Board, tuple[Board, Board, Board]], players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], campaign_flag: bool = True, current_stage: int = 0) -> None:
     """
     start_gameplay is a function
         that displays the game mode chosen and decides on the flow
@@ -530,12 +550,17 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Board, players: tupl
     ----------------------------------------|_______________|----------------------------------------
             """)
     if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer:    
-        game_session: tuple[bool, Board] = play_game(game_board, players, secret_code)
+        game_session: tuple[bool, Board] = play_game(game_mode, game_board, players, secret_code)
         display_board(game_session[1])
-        end_game(game_session[0], players, secret_code)
-    if game_mode == Main_Menu_Option.Campaign:
-        pass
-        stage_one: tuple[bool, Board] = play_game()
+        end_game(game_mode, current_stage, game_session[0], players, secret_code)
+    elif game_mode == Main_Menu_Option.Campaign and campaign_flag == False:
+        end_game(game_mode, current_stage, campaign_flag, players, secret_code[current_stage])
+    elif game_mode == Main_Menu_Option.Campaign and campaign_flag == True:
+        print(f"------------------------------------------------------------------ STAGE {current_stage+1} ------------------------------------------------------------------")
+        print(secret_code[current_stage])
+        game_stage: tuple[bool, Board] = play_game(game_mode, game_board[current_stage], players, secret_code[current_stage])
+        display_board(game_stage[1])
+        return start_gameplay(game_mode, game_board, players, secret_code, game_stage[0], current_stage)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -866,7 +891,7 @@ def display_board(game_board: Board) -> None:
     print("\n".join(header + board))
 
 
-def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
+def update_board(game_mode: Main_Menu_Option, game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
     """
     update_board is a function
         that uses the existing game board and updates it appropriately
@@ -883,22 +908,33 @@ def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, tu
 
     """
     new_row: Row = (new_guess, new_feedback)
-    match turn_count:
-        case 1:
-            return (new_row, ) + game_board[:-1]
-        case 2:
-            return game_board[:-5] + (new_row, ) + game_board[2:]
-        case 3:
-            return game_board[:-4] + (new_row, ) + game_board[3:]
-        case 4:
-            return game_board[:-3] + (new_row, ) + game_board[4:]
-        case 5:
-            return game_board[:-2] + (new_row, ) + game_board[5:]
+    match len(game_board):
         case 6:
-            return game_board[0:5] + (new_row, )
+            match turn_count:
+                case 1:
+                    return (new_row, ) + game_board[:-1]
+                case 2:
+                    return game_board[:-5] + (new_row, ) + game_board[2:]
+                case 3:
+                    return game_board[:-4] + (new_row, ) + game_board[3:]
+                case 4:
+                    return game_board[:-3] + (new_row, ) + game_board[4:]
+                case 5:
+                    return game_board[:-2] + (new_row, ) + game_board[5:]
+                case 6:
+                    return game_board[0:5] + (new_row, )
+        case 4:
+            match turn_count:
+                case 1:
+                    return (new_row, ) + game_board[:-1]
+                case 2:
+                    return game_board[:-3] + (new_row, ) + game_board[2:]
+                case 3:
+                    return game_board[:-2] + (new_row, ) + game_board[3:]
+                case 4:
+                    return game_board[0:3] + (new_row, )
 
-
-def end_game(game_finished: bool, players: Players, secret: Secret) -> None:
+def end_game(game_mode: Main_Menu_Option, current_stage: int, game_finished: bool, players: Players, secret: Secret) -> None:
     """
     end_game reveals the Secret code and the winner of the Mastermind game
 
@@ -917,6 +953,11 @@ def end_game(game_finished: bool, players: Players, secret: Secret) -> None:
             print(f"\n{str(players[0])} has won the game!")
         case False:
             print(f"\n{str(players[1])} has won the game!")
+
+    if game_mode == Main_Menu_Option.Campaign and current_stage == 2:
+        print("You have successfully completed your Campaign game!")
+    elif game_mode == Main_Menu_Option.Campaign and game_finished == False:
+        print("You have failed your Campaign game!")
 
 
 # ---------- Program Start Flow ----------
