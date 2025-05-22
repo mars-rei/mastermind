@@ -258,11 +258,11 @@ def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, fou
 
     Parameters:
         secret_code (Secret) - the secret code to be checked through
-        index_position (int) - used to access the value within the current index of the secret code
+        index_position (int) - used to access the value within the current index of the secret_code
         found_dupe (tuple[Secret]) - stores the value of the first duplicate pair found
 
     Returns:
-        bool - signifies if more than one duplicate pair has been found within the secret code
+        bool - signifies if more than one duplicate pair has been found within the secret_code
     """
     
     if index_position == 4 and found_dupe:
@@ -281,10 +281,10 @@ def check_two_dupe_secret(secret_code: Secret, index_position: int = 0) -> bool:
 
     Parameters:
         secret_code (Secret) - the secret code to be checked through
-        index_position (int) - used to access the value within the current index of the secret code
+        index_position (int) - used to access the value within the current index of the secret_code
 
     Returns:
-        bool - signifies if more than 2 of the same code peg appears in the secret code
+        bool - signifies if more than 2 of the same code peg appears in the secret_code
     """
         
     if index_position == 4:
@@ -299,9 +299,8 @@ def check_two_dupe_secret(secret_code: Secret, index_position: int = 0) -> bool:
 def receive_main_menu_input() -> None:
 
     """
-    receive_main_menu_input is a function
-        which receives the user's parsed Main_Menu_Option and 
-        based on this, calls the appropriate main menu option function
+    prompts for the main menu option to execute the next state of behaviour in regards to the option chosen
+
     """
 
     print(main_menu_options)
@@ -433,21 +432,18 @@ def hard_secret_code() -> Secret:
 
 
 # game_mode is grey here meaning it's not use,, update to remove it and from any calls of play_round?
-def play_round(game_mode: Main_Menu_Option, game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
+def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
     """
-    
-    play_round is a function
-        that executes a sequence of functions to carry out a singular
-        guess. This involves the prompt for the Guess, the Confirmation_Option,
-        the Feedback generated, and updating the Board.
+    executes a series of operations to carry out single attempt at guessing the secret code
 
     Parameters:
-        game_board (Board) - To be manipulated to create a new updated version for a Board value
-        secret_code (Secret) - To be passed into get_feedback() to be compared with new_guess
-        turn_count (int) - To be passed into update_board() to govern what Row of the Board is to be updated
+        game_mode (Main_Menu_Option) - passed into update_board() to govern on how to update the existing game_board
+        game_board (Board) - the existing game board to be updated
+        secret_code (Secret) - passed into get_feedback() to be compared to the new_guess
+        turn_count (int) - passed into update_board() to govern what index of the board to display on
 
     Returns:
-        tuple[Board, bool] - Returns the newly updated_board alongside the finished status of the game as a bool
+        tuple[Board, bool] - newly updated_board and the finished status of the game is returned
 
     """
     while True:
@@ -461,65 +457,55 @@ def play_round(game_mode: Main_Menu_Option, game_board: Board, secret_code: Secr
             return (updated_board, new_feedback[0])
 
 
-def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, current_stage: int = 0,game_finished: bool = False) -> tuple[bool, Board]:
+def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Player, Player], secret_code: Secret, turn_count: int = 1, current_stage: int = 0, game_finished: bool = False) -> tuple[bool, Board]:
     """
-    play_game is a function
-        that regulates the amount of attempts that a singular
-        Mastermind Game Mode can be taken. While turn_count
-        or game_finished have not meant a certain criteria to
-        end the game session, play round is called to allow for
-        an attempt to be made and a recurse is made.
+    makes a decision to on the amount of repeats are made when carrying out a single Guess prompting process
 
     Parameters:
-        game_board (Board) - To be passed into play_round()
-        players (tuple[Player, Player]) - To be passed into the play_game() recursive call
-        secret_code (Secret) - To be passed into play_round() and the play_game() recursive call
-        turn_count (int) - Initialised as 1 and passed into the play_game() recursive call incremented by 1
-        game_finished (bool) - Initialsied as False and governs the end of the game session.
+        game_mode (Main_Menu_Option) - used to govern the set of attempts available to the CodeBreaker
+        game_board (Board) - passed to play_round() for updating
+        players (tuple[Player, Player]) - passed into the play_game() for the recursive call
+        secret_code (Secret) - passed into play_round() for comparison and play_game() for the recursive call
+        turn_count (int) - keeps count of the attempts made and is passed into the play_game() incremented by 1 for the recursive call
+        current_stage (int) - used to assert the current stage being played during campaign mode
+        game_finished (bool) - governs the game session status
 
     Returns:
-        tuple[bool, Board] - Returns the finished state of the game indicating the winner and the final state of the Board
+        tuple[bool, Board] - winner of the game and the final state of the Board is returned
         
     """
-    print("Current Stage" + str(current_stage))
     if game_mode == Main_Menu_Option.Single_Player or game_mode == Main_Menu_Option.Multiplayer or (game_mode == Main_Menu_Option.Campaign and current_stage == 0 or current_stage == 1):
         if turn_count == 7 or game_finished == True:
             return (game_finished, game_board)
         else:
             print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
-            round: tuple[Board, bool] = play_round(game_mode, game_board, secret_code, turn_count)
+            round: tuple[Board, bool] = play_round(game_board, secret_code, turn_count)
             return play_game(game_mode, round[0], players, secret_code, turn_count+1, current_stage, round[1])
     elif game_mode == Main_Menu_Option.Campaign and current_stage == 2:
         if turn_count == 5 or game_finished == True:
             return (game_finished, game_board)
         else:
             print(f"\n---------- GUESS ATTEMPT NO.#{turn_count} ----------")
-            round: tuple[Board, bool] = play_round(game_mode, game_board, secret_code, turn_count)
+            round: tuple[Board, bool] = play_round(game_board, secret_code, turn_count)
             return play_game(game_mode, round[0], players, secret_code, turn_count+1, current_stage, round[1])
 
 
 # to revise docstring - parameters
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Union[Board, tuple[Board, Board, Board]], players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], campaign_flag: bool = True, current_stage: int = 0) -> None:
     """
-    start_gameplay is a function
-        that displays the game mode chosen and decides on the flow
-        in which the a certain game mode should behave in.
-        Depending on which game mode is chosen will govern the
-        amount of play_game() calls will be made until the a final
-        end_game() call is made.
+    decides on the amount of games are played for a certain game mode 
 
     Parameters:
-        game_mode (Main_Menu_Option) - Used to govern the which flow of the gameplay
-        game_board (Board) - To pass the appropriate Board into the first instance of a play_game() call
-        players (tuple[Player, Player]) - To pass the appropriate tuple of players into the first instance of a play_game() call
-        secret_code (Secret or tuple[Secret, Secret, Secret]) - To be passed, or individually passed if in a tuple, into the first instance of a play_game() call
+        game_mode (Main_Menu_Option) - used to govern the flow of gameplay
+        game_board (Board) - passed to play_game() for decision making
+        players (tuple[Player, Player]) - consists of the players of the game
+        secret_code (Secret or tuple[Secret, Secret, Secret]) - secret code(s) to be passed into play_game() and displayed through end_game()
+        campaign_flag (bool) - signifies when to stop the recursion for campaign mode
+        current_stage (int) - used to change game board and the secret code being passed for the next stage of campaign mode
 
-    Returns:
-        None
-        
     """
     print(f"""
-                                            _______________
+                                             _______________
     ----------------------------------------| {game_mode.name.upper()} |----------------------------------------
     ----------------------------------------|   GAME MODE   |----------------------------------------
     ----------------------------------------|_______________|----------------------------------------
@@ -534,7 +520,6 @@ def start_gameplay(game_mode: Main_Menu_Option, game_board: Union[Board, tuple[B
 
     elif game_mode == Main_Menu_Option.Campaign and campaign_flag == True: # when game mode is Campaign and CodeBreaker has not lost yet
         print(f"------------------------------------------------------------------ STAGE {current_stage+1} ------------------------------------------------------------------")
-        print(secret_code[current_stage]) # gets Secret code for the related stage
         game_stage: tuple[bool, Board] = play_game(game_mode, game_board[current_stage], players, secret_code[current_stage], 1, current_stage) # play game
 
         if game_stage[0] == False:
@@ -865,18 +850,16 @@ def format_peg(peg: Union[Code, Hint]) -> str:
 
 def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, turn_count: int) -> Board:
     """
-    update_board is a function
-        that uses the existing game board and updates it appropriately
-        with a new Row containing the new_guess and new_feedback.
+    updates the existing game board to contain the newly made Guess
 
     Parameters:
-        game_board (Board) - To updated through tuple slicing along with new_row
-        new_guess (Guess) - Forms part of the Row tuple in new_row
-        new_feedback (Feedback) - Forms art fo the Row tuple in new_row
-        turn_count (int) - Governs the position within the new Board to which new_row is updated
+        game_board (Board) - the current state of the game board
+        new_guess (Guess) - forms first portion of the tuple in new_row
+        new_feedback (Feedback) - forms second portion of the tuple in new_row
+        turn_count (int) - governs the position within the new Board to which new_row is updated in
 
     Returns:
-        Board - An updated version of the Board is formed combining the existing Board and the new Row
+        Board - an updated version of the Board is formed combining the existing Board and the new Row
 
     """
     new_row: Row = (new_guess, new_feedback)
