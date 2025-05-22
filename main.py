@@ -417,7 +417,7 @@ def make_secret_code(secret_size: int = 1) -> Secret:
     if secret_size == 4:
         return (receive_code_peg_input(),)
     else:
-        return (receive_code_peg_input(),) + get_guess(secret_size+1)
+        return (receive_code_peg_input(),) + make_secret_code(secret_size+1)
 
 
 def hard_secret_code() -> Secret: 
