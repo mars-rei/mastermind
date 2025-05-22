@@ -45,6 +45,7 @@ class Main_Menu_Option(Enum):
             return main_menu_option
         except ValueError:
             print("That is an invalid main menu choice.")
+            return None
 
 Menu: TypeAlias = Main_Menu_Option
 
@@ -69,11 +70,12 @@ class Confirmation_Option(Enum):
         """
 
         try:
-            lower_confirmation_input: str = input.lower().strip() # can't you just put this within Confirmation_Option below? - nested and chained pipelining
+            lower_confirmation_input: str = input.lower().strip() 
             confirmation_option: Confirmation_Option = Confirmation_Option(lower_confirmation_input)
             return confirmation_option
         except ValueError:
             print("That is an invalid confirmation choice.")
+            return None
     
 Confirm: TypeAlias = Confirmation_Option
 
@@ -104,10 +106,14 @@ class Code_Peg_Option(Enum):
 
         try:
             code_peg_option: Code_Peg_Option = Code_Peg_Option(int(input))
-            if code_peg_option != Code_Peg_Option.Empty:
-                return code_peg_option
+            match code_peg_option:
+                case Code_Peg_Option.Empty:
+                    return None
+                case _:
+                    return code_peg_option
         except ValueError:
             print("That is an invalid code peg choice.") 
+            return None
 
     def __str__(self) -> str:
         """
@@ -350,8 +356,6 @@ def receive_code_peg_input() -> Code:
                 case _:
                     print("You have chosen a " + print_in_colour(selected_option) + " peg.")
             return selected_option
-        else:
-            print("Invalid peg choice.")
 
 
 def receive_confirmation_input(choice: Union[Guess, Secret]) -> bool: 
@@ -566,7 +570,7 @@ def get_feedback(guess: Guess, secret: Secret) -> tuple[bool, Feedback]:
         return [True, tuple([Hint.Red] * 4)]
     else:
         red : list = get_red_hints(guess, secret) 
-        white : list = get_white_hints(guess, secret, red) 
+        white : list = get_white_hints(guess, [], secret, red) 
         feedback : list[Hint] = join_hints(red, white)
         final_feedback : Feedback = sort_hints(feedback) 
         return [False, final_feedback]
@@ -618,23 +622,37 @@ def get_red_hints(guess: Guess, secret: Secret) -> list:
     return [(True, guess[i]) if guess[i] == secret[i] else (False, guess[i]) for i in range(len(guess))]
 
 
-def get_white_hints(guess : Guess, secret : Secret, red_pegs: list) -> list:
+def get_white_hints(guess_left: tuple, running_feedback : list, secret: Secret, red_pegs: list) -> list:
     """
-    get_white_hints assigns White Hint pegs or Empty Hint pegs to each Code peg in the CodeBreaker's Guess
+    a recursive function that assigns White Hint pegs for feedback
 
     Parameters:
-        guess (Guess) - The CodeBreaker's Guess
-        secret (Secret) - The Secret to guess
-        red_pegs (list) - The list of red pegs assigned
+        guess_left (tuple) - The remaining CodeBreaker's guess to check
+        running_feedback (list) - The current list of White Hint peg indicators
 
     Returns:
         list - A list of tuples containing a Boolean and Code peg value to indicate whether
             a White Hint peg or Empty Hint peg has been assigned to them
-        
+            
     """
+    if not guess_left:
+        return running_feedback
+    
+    current_peg : Code = guess_left[0]
 
-    feedback : list = check_through_guess(guess, [], secret, red_pegs)
-    return feedback
+    if current_peg in secret:
+        match check_if_dupe(current_peg, secret):
+            case True:
+                new_hint : tuple[bool, Code] = occurs_twice(current_peg, red_pegs, running_feedback)
+
+            case False:
+                new_hint : tuple[bool, Code] = occurs_once(current_peg, red_pegs, running_feedback)
+                
+    else:
+        new_hint : tuple[bool, Code] = (False, current_peg)
+    
+    return get_white_hints(guess_left[1:], running_feedback + [new_hint], secret, red_pegs)
+
 
 def check_if_dupe(peg : Code, secret : Secret) -> bool: 
     """
@@ -714,38 +732,6 @@ def occurs_twice(peg : Code, red_pegs : list, running_feedback : list) -> tuple[
         
     """
     return [((check_guessed_correctly(peg, red_pegs) + check_almost_guessed(peg, running_feedback)) < 2), peg]
-
-
-def check_through_guess(guess_left: tuple, running_feedback : list, secret: Secret, red_pegs: list) -> list:
-    """
-    a recursive function that assigns White Hint pegs for feedback
-
-    Parameters:
-        guess_left (tuple) - The remaining CodeBreaker's guess to check
-        running_feedback (list) - The current list of White Hint peg indicators
-
-    Returns:
-        list - A list of tuples containing a Boolean and Code peg value to indicate whether
-            a White Hint peg or Empty Hint peg has been assigned to them
-            
-    """
-    if not guess_left:
-        return running_feedback
-    
-    current_peg : Code = guess_left[0]
-
-    if current_peg in secret:
-        match check_if_dupe(current_peg, secret):
-            case True:
-                new_hint : tuple[bool, Code] = occurs_twice(current_peg, red_pegs, running_feedback)
-
-            case False:
-                new_hint : tuple[bool, Code] = occurs_once(current_peg, red_pegs, running_feedback)
-                
-    else:
-        new_hint : tuple[bool, Code] = (False, current_peg)
-    
-    return check_through_guess(guess_left[1:], running_feedback + [new_hint], secret, red_pegs)
 
 
 def print_in_colour(peg: Union[Code, Hint]) -> str:
@@ -861,7 +847,7 @@ def update_board(game_board: Board, new_guess: Guess, new_feedback: Feedback, tu
     """
     new_row: Row = (new_guess, new_feedback)
     match len(game_board):
-        case 6:# GOODBYE - jk
+        case 6:
             match turn_count:
                 case 1:
                     return (new_row, ) + game_board[:-1]
