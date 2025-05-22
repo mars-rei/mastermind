@@ -629,6 +629,8 @@ def get_white_hints(guess_left: tuple, running_feedback : list, secret: Secret, 
     Parameters:
         guess_left (tuple) - The remaining CodeBreaker's guess to check
         running_feedback (list) - The current list of White Hint peg indicators
+        secret (Secret) - The secret code
+        red_pegs (list) The list of Red Hint peg indicators
 
     Returns:
         list - A list of tuples containing a Boolean and Code peg value to indicate whether
