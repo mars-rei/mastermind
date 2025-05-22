@@ -431,7 +431,6 @@ def hard_secret_code() -> Secret:
     return newSecretCode 
 
 
-# game_mode is grey here meaning it's not use,, update to remove it and from any calls of play_round?
 def play_round(game_board: Board, secret_code: Secret, turn_count: int) -> tuple[Board, bool]:    
     """
     executes a series of operations to carry out single attempt at guessing the secret code
@@ -490,7 +489,6 @@ def play_game(game_mode: Main_Menu_Option, game_board: Board, players: tuple[Pla
             return play_game(game_mode, round[0], players, secret_code, turn_count+1, current_stage, round[1])
 
 
-# to revise docstring - parameters
 def start_gameplay(game_mode: Main_Menu_Option, game_board: Union[Board, tuple[Board, Board, Board]], players: tuple[Player, Player], secret_code: Union[Secret, tuple[Secret, Secret, Secret]], campaign_flag: bool = True, current_stage: int = 0) -> None:
     """
     decides on the amount of games are played for a certain game mode 
@@ -620,7 +618,7 @@ def get_red_hints(guess: Guess, secret: Secret) -> list:
     return [(True, guess[i]) if guess[i] == secret[i] else (False, guess[i]) for i in range(len(guess))]
 
 
-def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
+def get_white_hints(guess : Guess, secret : Secret, red_pegs: list) -> list:
     """
     get_white_hints assigns White Hint pegs or Empty Hint pegs to each Code peg in the CodeBreaker's Guess
 
@@ -635,120 +633,119 @@ def get_white_hints(guess : Guess, secret : Secret, red_pegs : list) -> list:
         
     """
 
-    # need to move out of function tomorrow --------------------------------------------------------------------
-    def check_if_dupe(peg : Code, secret : Secret) -> bool: 
-        """
-        check_if_dupe checks whether the given peg is a duplicated peg in the Secret code or not
-
-        Parameters:
-            peg (Code) - The peg to check
-            secret (Secret) - The Secret code
-
-        Returns:
-            bool - Whether the peg is a duplicated peg or not
-            
-        """
-        return secret.count(peg) == 2
-
-
-    def check_guessed_correctly(peg : Code, red_pegs : list) -> int: 
-        """
-        checks how many times a peg has been assigned a Red Hint peg 
-
-        Parameters:
-            peg (Code) - The peg to check
-            red_pegs (list) - The list of Red Hint peg indicators
-
-        Returns:
-            int - The number of times the peg has been assigned a Red Hint peg
-            
-        """
-        return red_pegs.count((True, peg))
-
-
-    def check_almost_guessed(peg : Code, running_feedback : list) -> int:
-        """
-        checks how many times a peg has been assigned a White Hint peg
-
-        Parameters:
-            peg (Code) - The peg to check
-            running_feedback (list) - The current list of White Hint peg indicators
-
-        Returns:
-            int - The number of times the peg has been assigned a White Hint peg
-            
-        """
-        return running_feedback.count((True, peg))
-
-
-    def occurs_once(peg : Code, red_pegs : list, running_feedback : list) -> tuple[bool, Code]:
-        """
-        occurs_once checks if a Code peg meets the criteria to be assigned a White Hint peg
-            if it occurs only once in the Secret code
-
-        Parameters:
-            peg (Code) - The peg to check
-            red_pegs (list) - The list of Red Hint peg indicators
-            running_feedback (list) - The current list of White Hint peg indicators
-
-        Returns:
-            tuple[bool, Code] - A boolean value indicating whether the peg can be assigned 
-                a White Hint peg or not, and the Code peg
-            
-        """
-        return [(check_guessed_correctly(peg, red_pegs) == 0 and check_almost_guessed(peg, running_feedback) == 0), peg]
-
-
-    def occurs_twice(peg : Code, red_pegs : list, running_feedback : list) -> tuple[bool, Code]:
-        """
-        checks if a Code peg meets the criteria to be assigned a White Hint peg if it is the duplicate peg in the Secret code
-
-        Parameters:
-            peg (Code) - The peg to check
-            red_pegs (list) - The list of Red Hint peg indicators
-            running_feedback (list) - The current list of White Hint peg indicators
-
-        Returns:
-            tuple[bool, Code] A boolean value indicating whether the peg can be assigned 
-                a White Hint peg or not, and the Code peg
-            
-        """
-        return [((check_guessed_correctly(peg, red_pegs) + check_almost_guessed(peg, running_feedback)) < 2), peg]
-
-    def check_through_guess(guess_left: tuple, running_feedback : list) -> list:
-        """
-        a recursive function that assigns White Hint pegs for feedback
-
-        Parameters:
-            guess_left (tuple) - The remaining CodeBreaker's guess to check
-            running_feedback (list) - The current list of White Hint peg indicators
-
-        Returns:
-            list - A list of tuples containing a Boolean and Code peg value to indicate whether
-                a White Hint peg or Empty Hint peg has been assigned to them
-                
-        """
-        if not guess_left:
-            return running_feedback
-        
-        current_peg : Code = guess_left[0]
-
-        if current_peg in secret:
-            match check_if_dupe(current_peg, secret):
-                case True:
-                    new_hint : tuple[bool, Code] = occurs_twice(current_peg, red_pegs, running_feedback)
-
-                case False:
-                    new_hint : tuple[bool, Code] = occurs_once(current_peg, red_pegs, running_feedback)
-                    
-        else:
-            new_hint : tuple[bool, Code] = (False, current_peg)
-        
-        return check_through_guess(guess_left[1:], running_feedback + [new_hint])
-    # ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-    feedback : list = check_through_guess(guess, [])
+    feedback : list = check_through_guess(guess, [], secret, red_pegs)
     return feedback
+
+def check_if_dupe(peg : Code, secret : Secret) -> bool: 
+    """
+    check_if_dupe checks whether the given peg is a duplicated peg in the Secret code or not
+
+    Parameters:
+        peg (Code) - The peg to check
+        secret (Secret) - The Secret code
+
+    Returns:
+        bool - Whether the peg is a duplicated peg or not
+        
+    """
+    return secret.count(peg) == 2
+
+
+def check_guessed_correctly(peg : Code, red_pegs : list) -> int: 
+    """
+    checks how many times a peg has been assigned a Red Hint peg 
+
+    Parameters:
+        peg (Code) - The peg to check
+        red_pegs (list) - The list of Red Hint peg indicators
+
+    Returns:
+        int - The number of times the peg has been assigned a Red Hint peg
+        
+    """
+    return red_pegs.count((True, peg))
+
+
+def check_almost_guessed(peg : Code, running_feedback : list) -> int:
+    """
+    checks how many times a peg has been assigned a White Hint peg
+
+    Parameters:
+        peg (Code) - The peg to check
+        running_feedback (list) - The current list of White Hint peg indicators
+
+    Returns:
+        int - The number of times the peg has been assigned a White Hint peg
+        
+    """
+    return running_feedback.count((True, peg))
+
+
+def occurs_once(peg : Code, red_pegs : list, running_feedback : list) -> tuple[bool, Code]:
+    """
+    occurs_once checks if a Code peg meets the criteria to be assigned a White Hint peg
+        if it occurs only once in the Secret code
+
+    Parameters:
+        peg (Code) - The peg to check
+        red_pegs (list) - The list of Red Hint peg indicators
+        running_feedback (list) - The current list of White Hint peg indicators
+
+    Returns:
+        tuple[bool, Code] - A boolean value indicating whether the peg can be assigned 
+            a White Hint peg or not, and the Code peg
+        
+    """
+    return [(check_guessed_correctly(peg, red_pegs) == 0 and check_almost_guessed(peg, running_feedback) == 0), peg]
+
+
+def occurs_twice(peg : Code, red_pegs : list, running_feedback : list) -> tuple[bool, Code]:
+    """
+    checks if a Code peg meets the criteria to be assigned a White Hint peg if it is the duplicate peg in the Secret code
+
+    Parameters:
+        peg (Code) - The peg to check
+        red_pegs (list) - The list of Red Hint peg indicators
+        running_feedback (list) - The current list of White Hint peg indicators
+
+    Returns:
+        tuple[bool, Code] A boolean value indicating whether the peg can be assigned 
+            a White Hint peg or not, and the Code peg
+        
+    """
+    return [((check_guessed_correctly(peg, red_pegs) + check_almost_guessed(peg, running_feedback)) < 2), peg]
+
+
+def check_through_guess(guess_left: tuple, running_feedback : list, secret: Secret, red_pegs: list) -> list:
+    """
+    a recursive function that assigns White Hint pegs for feedback
+
+    Parameters:
+        guess_left (tuple) - The remaining CodeBreaker's guess to check
+        running_feedback (list) - The current list of White Hint peg indicators
+
+    Returns:
+        list - A list of tuples containing a Boolean and Code peg value to indicate whether
+            a White Hint peg or Empty Hint peg has been assigned to them
+            
+    """
+    if not guess_left:
+        return running_feedback
+    
+    current_peg : Code = guess_left[0]
+
+    if current_peg in secret:
+        match check_if_dupe(current_peg, secret):
+            case True:
+                new_hint : tuple[bool, Code] = occurs_twice(current_peg, red_pegs, running_feedback)
+
+            case False:
+                new_hint : tuple[bool, Code] = occurs_once(current_peg, red_pegs, running_feedback)
+                
+    else:
+        new_hint : tuple[bool, Code] = (False, current_peg)
+    
+    return check_through_guess(guess_left[1:], running_feedback + [new_hint], secret, red_pegs)
 
 
 def print_in_colour(peg: Union[Code, Hint]) -> str:
