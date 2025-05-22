@@ -185,7 +185,6 @@ Players : TypeAlias = tuple[CodeBreaker, CodeMaker] | tuple[CodeBreaker, CPU]
 
 # ---------- Secret Code Type ----------
 Secret: TypeAlias = tuple[Code, Code, Code, Code]
-emptySecret : Secret = (Code.Empty, Code.Empty, Code.Empty, Code.Empty)
 
 
 # ---------- Guess Type ----------
