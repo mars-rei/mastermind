@@ -252,7 +252,7 @@ Enter a choice (y or n)
 
 
 # ---------- Option Interface Visuals ----------
-def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, found_dupe: tuple[Secret] = ()) -> bool:
+def check_one_dupe_pair_secret(secret_code: Secret, index_position: int = 0, found_dupe: tuple[Code_Peg_Option] = ()) -> bool:
     """
     checks if more than one pair of duplicates are within the secret code combination
 
