@@ -91,8 +91,8 @@ def test_get_red_hints():
 # testing check_if_dupe
 def test_check_if_dupe():
     secret = (Code_Peg_Option.Green, Code_Peg_Option.Brown, Code_Peg_Option.Orange, Code_Peg_Option.Orange)
-    check_if_dupe(Code_Peg_Option.Orange, secret)
-    check_if_dupe(Code_Peg_Option.Green, secret)
+    assert check_if_dupe(Code_Peg_Option.Orange, secret) == True
+    assert check_if_dupe(Code_Peg_Option.Green, secret) == False
 
 
 # testing check_guessed_correctly
