@@ -64,15 +64,22 @@ def test_get_feedback():
     secret = (Code_Peg_Option.Orange, Code_Peg_Option.Orange, Code_Peg_Option.Green, Code_Peg_Option.Brown)
     assert get_feedback(guess, secret) == [False, (Hint_Peg.White, Hint_Peg.White, Hint_Peg.White, Hint_Peg.White)]
 
-    #guess = (Code_Peg_Option.Green, Code_Peg_Option.Brown, Code_Peg_Option.Orange, Code_Peg_Option.Orange)
-    #secret = (Code_Peg_Option.Green, Code_Peg_Option.Orange, Code_Peg_Option.Green, Code_Peg_Option.Brown)
-    #assert get_feedback(guess, secret) == [False, (Hint_Peg.Red, Hint_Peg.White, Hint_Peg.White, Hint_Peg.Empty)] # logic is working incorrectly
+    guess = (Code_Peg_Option.Green, Code_Peg_Option.Brown, Code_Peg_Option.Orange, Code_Peg_Option.Orange)
+    secret = (Code_Peg_Option.Green, Code_Peg_Option.Orange, Code_Peg_Option.Green, Code_Peg_Option.Brown)
+    assert get_feedback(guess, secret) == [False, (Hint_Peg.Red, Hint_Peg.White, Hint_Peg.White, Hint_Peg.Empty)] # logic is working incorrectly
 
 
 # testing join_hints
+def test_join_hints():
+    red_pegs = [(False, Code_Peg_Option.Green), (True, Code_Peg_Option.Brown), (False, Code_Peg_Option.Orange), (False, Code_Peg_Option.Orange)]
+    white_pegs = [(True, Code_Peg_Option.Green), (False, Code_Peg_Option.Brown), (True, Code_Peg_Option.Orange), (False, Code_Peg_Option.Orange)]
+    assert join_hints(red_pegs, white_pegs) == [Hint_Peg.White, Hint_Peg.Red, Hint_Peg.White, Hint_Peg.Empty]
 
 
 # testing sort_hints
+def test_sort_hints():
+    hints = [Hint_Peg.Empty, Hint_Peg.White, Hint_Peg.Red, Hint_Peg.Red]
+    assert sort_hints(hints) == (Hint_Peg.Red, Hint_Peg.Red, Hint_Peg.White, Hint_Peg.Empty)
 
 
 # testing get_red_hints
@@ -83,9 +90,6 @@ def test_get_red_hints():
 
     guess = (Code_Peg_Option.Purple, Code_Peg_Option.Yellow, Code_Peg_Option.Orange, Code_Peg_Option.Orange)
     assert get_red_hints(guess, secret) == [(False, Code_Peg_Option.Purple), (False, Code_Peg_Option.Yellow), (True, Code_Peg_Option.Orange), (True, Code_Peg_Option.Orange)]
-
-
-# testing get_white_hints - brain spasming
 
 
 # testing check_if_dupe
@@ -123,12 +127,6 @@ def test_check_almost_guessed_2():
     assert check_almost_guessed(Code_Peg_Option.Orange, running_feedback) == 2
 
 
-# testing occurs_once - brain is spasming
-
-
-# testing occurs_twice - brain is spasming
-
-
 # testing the Player .__str__ functions
 def test_code_maker_str():
     assert str(CodeMaker()) == "Code Maker"
@@ -138,9 +136,6 @@ def test_code_breaker_str():
 
 def test_cpu_str():
     assert str(CPU()) == "CPU"
-
-
-# test display_board - angelo?
 
 
 # test if normal_secret_code provides a tuple of distinct values
@@ -167,10 +162,6 @@ def test_format_peg():
     assert format_peg(Hint_Peg.Empty) == "|        "
     assert format_peg(Hint_Peg.White) == "| \033[38;5;15mwhite\033[0m  "
     assert format_peg(Hint_Peg.Red) == "| \033[38;5;124mred\033[0m    "
-
-
-
-# test update_board - angelo
 
 
 # test end_game
