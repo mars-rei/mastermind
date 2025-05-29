@@ -13,8 +13,8 @@ from typing import Type, TypeAlias, Union
 Project: Mastermind Command Line Game
 
 Authors:
-- Imogen Dicen (23127176)
-- Angelo Luis Lagdameo (23134228)
+- Imogen Dicen 
+- Angelo Luis Lagdameo 
 
 """
 
