@@ -19,7 +19,7 @@ The aim is to program this in the declarative programming paradigm.
   - [Portfolio](https://reminiscent-flannel-fe7.notion.site/my-projects-0cd061a938b0467d98cb56019a970f6d?pvs=4)
 - <ins>Angelo Luis Lagdameo</ins>
   - [LinkedIn](https://www.linkedin.com/in/angelo-luis-lagdameo)
-  - [Portfolio](https://www.notion.so/Angelo-Luis-Lagdameo-1fec27bb36fd808185d2c8a27c1ce08b?source=copy_link)
+  - [Portfolio](https://ninjangelo.github.io/)
 
 
 ## Other Project Details
